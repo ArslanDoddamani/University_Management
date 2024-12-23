@@ -119,38 +119,66 @@ router.post("/purchase", async (req, res) => {
   }
 });
 
+
 router.post("/verifypayment", async (req, res) => {
   try {
-      const { razorpay_order_id, razorpay_payment_id, razorpay_signature, SubjectId, userId } = req.body;
-      console.log("userId"+userId);
-      console.log('under verification tab');
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      SubjectId,
+      userId,
+    } = req.body;
 
-      // // Step 1: Verify the payment signature
-      const expectedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_API_SECRET)
-          .update(razorpay_order_id + "|" + razorpay_payment_id)
-          .digest('hex');
+    console.log("Verification initiated...");
+    console.log("Razorpay Order ID:", razorpay_order_id);
+    console.log("Razorpay Payment ID:", razorpay_payment_id);
+    console.log("Provided Signature:", razorpay_signature);
+    console.log("Subject ID:", SubjectId);
+    console.log("User ID:", userId);
 
-      if (expectedSignature === razorpay_signature) {
-      //     // Step 2: Payment is verified, find the user
-          const user = await User.findById(userId);
-          if (!user) {
-              return res.status(404).json({ msg: 'User not found' });
-          }
+    // Step 1: Verify the payment signature
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_API_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
 
-          // Step 3: Add the course to the user's `courses` array if not already added
-          if (!user.registeredSubjects.includes(SubjectId)) {
-              user.registeredSubjects.push(SubjectId);
-              await user.save();
-           }
+    console.log("Expected Signature:", expectedSignature);
 
-          // Step 4: Send success response
-          return res.status(200).json({ success: true, msg: 'Payment verified and course added' });
-      }else{
-        return res.status(400).json({ success: false, msg: 'Payment verification failed' });
-      } 
-     } catch (error) {
-      console.error("Error in payment verification:", error);
-      return res.status(500).json({ success: false, msg: 'Internal Server Error' });
+    if (expectedSignature !== razorpay_signature) {
+      console.error("Signature mismatch! Payment verification failed.");
+      return res
+        .status(400)
+        .json({ success: false, msg: "Payment verification failed" });
+    }
+
+    console.log("Payment signature verified.");
+
+    // Step 2: Find the user in the database
+    const user = await User.findById(userId);
+    if (!user) {
+      console.error("User not found!");
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    console.log("User found:", user.name);
+
+    // Step 3: Add the subject to the user's registeredSubjects if not already added
+    if (!user.registeredSubjects.includes(SubjectId)) {
+      user.registeredSubjects.push(SubjectId);
+      await user.save();
+      console.log(`Subject ${SubjectId} added to user ${userId}.`);
+    } else {
+      console.log(`Subject ${SubjectId} already registered for user ${userId}.`);
+    }
+
+    // Step 4: Send success response
+    return res
+      .status(200)
+      .json({ success: true, msg: "Payment verified and subject added" });
+  } catch (error) {
+    console.error("Error in payment verification:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
   }
 });
 

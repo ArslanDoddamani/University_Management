@@ -3,7 +3,7 @@ import { Routes, Route, Link } from 'react-router-dom';
 import { Menu, User, BookOpen, GraduationCap, CreditCard, LogOut } from 'lucide-react';
 import Profile from './Profile';
 import Semester from './Semester';
-import Subjects from '../student/Subjects/index.jsx';
+import Subjects from './Subjects/index.js';
 import Results from './Results';
 import PaymentHistory from './PaymentHistory';
 
