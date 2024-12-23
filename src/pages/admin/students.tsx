@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { student } from '../../services/api';
 
 interface Subject {
@@ -17,7 +17,7 @@ interface Student {
   usn: string;
   name: string;
   department: string;
-  dateOfBirth: number; // Assuming dateOfBirth is stored as a timestamp or a number
+  dateOfBirth: number;
   email: string;
   password?: string;
   phone: string;
@@ -30,20 +30,18 @@ const Students = () => {
   const [students, setStudents] = useState<Student[]>([]);
 
   useEffect(() => {
-
     const fetchStudents = async () => {
-        try {
-          const response = await student.getStudents();
-          setStudents(response.data.students); // Assuming response.data contains students
-        } catch (error) {
-          console.error('Error fetching students:', error);
-        }
-      };
+      try {
+        const response = await student.getStudents();
+        setStudents(response.data.students); // Assuming response.data contains students
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      }
+    };
 
     fetchStudents();
   }, []);
 
-  
   const handleAssignGrades = async (studentId: string, grades: Grade[]) => {
     try {
       const res = await student.addGrades(studentId, grades); // Assuming an endpoint for adding grades
@@ -78,77 +76,79 @@ const Students = () => {
   };
 
   return (
-    <div className="students-container">
+    <div className="bg-gray-800 text-white min-h-screen py-6 px-4">
+      <h1 className="text-3xl font-semibold text-center mb-6">Student Details</h1>
       {students.length === 0 ? (
-        <p className="loading-message">Students will load here...</p>
+        <p className="text-center text-gray-400">Students will load here...</p>
       ) : (
-        <div className="students-list">
+        <div className="space-y-6">
           {students.map((student) => (
-            <div className="student-card" key={student._id}>
-              <h2 className="student-name">Name: {student.name}</h2>
-              <p className="student-usn">University roll no: {student.usn || 'Not assigned'}</p>
-              <p className="student-details">Department: {student.department}</p>
-              <p className="student-details">Date of Birth: {new Date(student.dateOfBirth).toLocaleDateString()}</p>
-              <p className="student-details">Email: {student.email}</p>
-              <p className="student-details">Phone: {student.phone}</p>
-              <p className="student-details">Current Semester: {student.currentSemester}</p>
-              <p className="student-details">Registered Subjects:</p>
-              <ul>
-                {student.registeredSubjects.length === 0 ? (
-                  <li>No subjects registered</li>
-                ) : (
-                  student.registeredSubjects.map((subject) => (
-                    <li key={subject.code}>
-                      {subject.name} (Code: {subject.code}, Credits: {subject.credits})
-                      <div>
-                        <label htmlFor={`grade-${student._id}-${subject.code}`}>Grade: </label>
-                        <input
-                          id={`grade-${student._id}-${subject.code}`}
-                          type="text"
-                          value={
-                            student.grades.find((g) => g.subjectCode === subject.code)?.grade || ''
-                          }
-                          onChange={(e) => {
-                            const updatedStudents = students.map((s) => {
-                              if (s._id === student._id) {
-                                const updatedGrades = s.grades.map((g) =>
-                                  g.subjectCode === subject.code
-                                    ? { ...g, grade: e.target.value }
-                                    : g
-                                );
-                                const newGrade = {
-                                  subjectCode: subject.code,
-                                  grade: e.target.value,
-                                };
-                                const isGradeNew = !updatedGrades.find(
-                                  (g) => g.subjectCode === subject.code
-                                );
+            <div className="bg-gray-700 p-6 rounded-lg shadow-lg" key={student._id}>
+              <h2 className="text-2xl font-semibold mb-2">{student.name}</h2>
+              <p className="text-gray-400">University Roll No: {student.usn || 'Not assigned'}</p>
+              <p className="text-gray-400">Department: {student.department}</p>
+              <p className="text-gray-400">Date of Birth: {new Date(student.dateOfBirth).toLocaleDateString()}</p>
+              <p className="text-gray-400">Email: {student.email}</p>
+              <p className="text-gray-400">Phone: {student.phone}</p>
+              <p className="text-gray-400">Current Semester: {student.currentSemester}</p>
+              
+              <div className="mt-4">
+                <p className="text-lg font-semibold text-gray-200">Registered Subjects:</p>
+                <ul className="space-y-4">
+                  {student.registeredSubjects.length === 0 ? (
+                    <li>No subjects registered</li>
+                  ) : (
+                    student.registeredSubjects.map((subject) => (
+                      <li key={subject.code} className="bg-gray-600 p-4 rounded-lg">
+                        <p className="text-lg font-semibold">{subject.name} (Code: {subject.code}, Credits: {subject.credits})</p>
+                        <div className="flex items-center space-x-4">
+                          <label htmlFor={`grade-${student._id}-${subject.code}`} className="text-gray-300">Grade:</label>
+                          <input
+                            id={`grade-${student._id}-${subject.code}`}
+                            type="text"
+                            className="bg-gray-500 text-white rounded-md p-2 w-24"
+                            value={
+                              student.grades.find((g) => g.subjectCode === subject.code)?.grade || ''
+                            }
+                            onChange={(e) => {
+                              const updatedStudents = students.map((s) => {
+                                if (s._id === student._id) {
+                                  const updatedGrades = s.grades.map((g) =>
+                                    g.subjectCode === subject.code
+                                      ? { ...g, grade: e.target.value }
+                                      : g
+                                  );
+                                  const newGrade = {
+                                    subjectCode: subject.code,
+                                    grade: e.target.value,
+                                  };
+                                  const isGradeNew = !updatedGrades.find(
+                                    (g) => g.subjectCode === subject.code
+                                  );
 
-                                return {
-                                  ...s,
-                                  grades: isGradeNew
-                                    ? [...updatedGrades, newGrade]
-                                    : updatedGrades,
-                                };
-                              }
-                              return s;
-                            });
-                            handleGradeChange(
-                              student._id,
-                              subject.code,
-                              e.target.value,
-                              updatedStudents
-                            );
-                          }}
-                        />
-                      </div>
-                    </li>
-                  ))
-                )}
-              </ul>
-              <br />
-              <hr />
-              <hr />
+                                  return {
+                                    ...s,
+                                    grades: isGradeNew
+                                      ? [...updatedGrades, newGrade]
+                                      : updatedGrades,
+                                  };
+                                }
+                                return s;
+                              });
+                              handleGradeChange(
+                                student._id,
+                                subject.code,
+                                e.target.value,
+                                updatedStudents
+                              );
+                            }}
+                          />
+                        </div>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
             </div>
           ))}
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { admin } from '../../services/api'
+import { admin } from '../../services/api';
 
 export default function Subjects() {
   const [formData, setFormData] = useState({
@@ -59,48 +59,138 @@ export default function Subjects() {
   };
 
   return (
-    <div>
-      <h1 className='m-2 text-black font-bold text-center'>Add New Subject</h1>
-      <hr />
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Subject Code:</label>
-          <input type="text" name="code" value={formData.code} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Subject Name:</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Credits:</label>
-          <input type="number" name="credits" value={formData.credits} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Semester:</label>
-          <input type="number" name="semester" value={formData.semester} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Department:</label>
-          <input type="text" name="department" value={formData.department} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Registration Fee:</label>
-          <input type="number" name="fees.registration" value={formData.fees.registration} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Re-Registration Fee (Full):</label>
-          <input type="number" name="fees.reRegistrationF" value={formData.fees.reRegistrationF} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Re-Registration Fee (Withheld):</label>
-          <input type="number" name="fees.reRegistrationW" value={formData.fees.reRegistrationW} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Challenge Valuation Fee:</label>
-          <input type="number" name="fees.challengeValuation" value={formData.fees.challengeValuation} onChange={handleChange} required />
-        </div>
-        <button type="submit" className='bg-black p-2 cursor-pointer m-5 text-white'>Add Subject</button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-black text-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md md:max-w-2xl w-full space-y-8">
+        <h1 className="m-2 text-white font-bold text-center text-2xl">Add New Subject</h1>
+        <hr />
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 w-full">
+          <div>
+            <label htmlFor="code" className="block text-md font-medium">Subject Code:</label>
+            <input
+              type="text"
+              name="code"
+              id="code"
+              value={formData.code}
+              onChange={handleChange}
+              className="mt-1 block w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="name" className="block text-md font-medium">Subject Name:</label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="mt-1 block w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="credits" className="block text-md font-medium">Credits:</label>
+            <input
+              type="number"
+              name="credits"
+              id="credits"
+              value={formData.credits}
+              onChange={handleChange}
+              className="mt-1 block w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="semester" className="block text-md font-medium">Semester:</label>
+            <input
+              type="number"
+              name="semester"
+              id="semester"
+              value={formData.semester}
+              onChange={handleChange}
+              className="mt-1 block w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="department" className="block text-md font-medium">Department:</label>
+            <input
+              type="text"
+              name="department"
+              id="department"
+              value={formData.department}
+              onChange={handleChange}
+              className="mt-1 block w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="fees.registration" className="block text-md font-medium">Registration Fee:</label>
+            <input
+              type="number"
+              name="fees.registration"
+              id="fees.registration"
+              value={formData.fees.registration}
+              onChange={handleChange}
+              className="mt-1 block w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="fees.reRegistrationF" className="block text-md font-medium">Re-Registration Fee (Full):</label>
+            <input
+              type="number"
+              name="fees.reRegistrationF"
+              id="fees.reRegistrationF"
+              value={formData.fees.reRegistrationF}
+              onChange={handleChange}
+              className="mt-1 block w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="fees.reRegistrationW" className="block text-md font-medium">Re-Registration Fee (Withheld):</label>
+            <input
+              type="number"
+              name="fees.reRegistrationW"
+              id="fees.reRegistrationW"
+              value={formData.fees.reRegistrationW}
+              onChange={handleChange}
+              className="mt-1 block w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="fees.challengeValuation" className="block text-md font-medium">Challenge Valuation Fee:</label>
+            <input
+              type="number"
+              name="fees.challengeValuation"
+              id="fees.challengeValuation"
+              value={formData.fees.challengeValuation}
+              onChange={handleChange}
+              className="mt-1 block w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
+              required
+            />
+          </div>
+
+          <div className="col-span-full">
+            <button
+              type="submit"
+              className="mt-8 w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Add Subject
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

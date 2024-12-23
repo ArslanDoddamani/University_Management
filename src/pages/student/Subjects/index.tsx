@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { student } from '../../../services/api';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 
 interface Subject {
@@ -56,7 +56,7 @@ const Subjects: React.FC = () => {
 
     try {
       const orderResponse = await student.createOrder(SubjectId, userId);
-      const {order}=orderResponse.data;
+      const { order } = orderResponse.data;
       console.log('Order Response: ', orderResponse);
 
       const apiKeyResponse = await student.getApiKey();
@@ -112,31 +112,50 @@ const Subjects: React.FC = () => {
   }
 
   return (
-    <div className="subjects-container">
+    <div className="subjects-container bg-gray-900 text-white p-6 rounded-lg shadow-lg">
+      <h1 className="text-3xl font-bold text-center mb-6">Available Subjects</h1>
       {subjects.length < 1 ? (
-        <p className="loading-message">Subjects will load here...</p>
+        <p className="loading-message text-center text-lg">Subjects will load here...</p>
       ) : (
-        <div className="subjects-list">
-          {subjects.map((subject) => (
-            <div className="subject-card" key={subject._id}>
-              <h2 className="subject-code">{subject.code}</h2>
-              <p className="subject-name">{subject.name}</p>
-              <p className="subject-details">Credits: {subject.credits}</p>
-              <p className="subject-details">Semester: {subject.semester}</p>
-              <p className="subject-details">Department: {subject.department}</p>
-              <p className="subject-details">Registration Fee: ₹{subject.fees.registration}</p>
-              <p className="subject-details">Re-Registration Fee (Full): ₹{subject.fees.reRegistrationF}</p>
-              <p className="subject-details">Re-Registration Fee (Withheld): ₹{subject.fees.reRegistrationW}</p>
-              <p className="subject-details">Challenge Valuation Fee: ₹{subject.fees.challengeValuation}</p>
-              <button
-                className="bg-red-800 p-2 border-2 text-white cursor-pointer"
-                onClick={() => initiatePayment(subject._id)}
-              >
-                Register
-              </button>
-            </div>
-          ))}
-        </div>
+        <table className="min-w-full table-auto border-collapse bg-gray-800 rounded-lg shadow-lg">
+          <thead>
+            <tr className="border-b-2 border-gray-700">
+              <th className="py-2 px-4 text-left text-lg">Subject Code</th>
+              <th className="py-2 px-4 text-left text-lg">Subject Name</th>
+              <th className="py-2 px-4 text-left text-lg">Credits</th>
+              <th className="py-2 px-4 text-left text-lg">Semester</th>
+              <th className="py-2 px-4 text-left text-lg">Department</th>
+              <th className="py-2 px-4 text-left text-lg">Registration Fee</th>
+              <th className="py-2 px-4 text-left text-lg">Re-Registration Fee (Full)</th>
+              <th className="py-2 px-4 text-left text-lg">Re-Registration Fee (WithDraw)</th>
+              <th className="py-2 px-4 text-left text-lg">Challenge Valuation Fee</th>
+              <th className="py-2 px-4 text-left text-lg">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {subjects.map((subject) => (
+              <tr key={subject._id} className="border-b border-gray-700">
+                <td className="py-2 px-4">{subject.code}</td>
+                <td className="py-2 px-4">{subject.name}</td>
+                <td className="py-2 px-4">{subject.credits}</td>
+                <td className="py-2 px-4">{subject.semester}</td>
+                <td className="py-2 px-4">{subject.department}</td>
+                <td className="py-2 px-4">₹{subject.fees.registration}</td>
+                <td className="py-2 px-4">₹{subject.fees.reRegistrationF}</td>
+                <td className="py-2 px-4">₹{subject.fees.reRegistrationW}</td>
+                <td className="py-2 px-4">₹{subject.fees.challengeValuation}</td>
+                <td className="py-2 px-4">
+                  <button
+                    className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition duration-200"
+                    onClick={() => initiatePayment(subject._id)}
+                  >
+                    Register
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
