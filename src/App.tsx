@@ -13,6 +13,7 @@ import Allsubjects from './pages/admin/Allsubjects';
 import FacultyLogin from './pages/FacultyLogin';
 import AddFaculty from './pages/admin/addFaculty';
 import FacultyDashboard from './pages/FacultyDashboard';
+import StudentSubjects from './pages/admin/StudentSubjects';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/admin/students" element={<Students/>}></Route>
           <Route path="/admin/allsubjects" element={<Allsubjects/>}></Route>
           <Route path="/admin/addFaculty" element={<AddFaculty/>}></Route>
+          <Route path="/admin/students/:studentId/subjects" element={<StudentSubjects />} />
           
           
           {/* Student Routes */}
