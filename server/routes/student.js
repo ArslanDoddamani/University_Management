@@ -30,10 +30,19 @@ router.get('/profile', auth, checkRole(['student']), async (req, res) => {
 //fetch all students
 router.get('/allstudents',async(req,res)=>{
   const students=await User.find({});
-  console.log(students);
   return res.status(200).json({students})
-
 })
+
+router.delete('/deleteStudents',async(req,res)=>{
+  try {
+    const studentId = req.body.studentId;
+    await User.findByIdAndDelete(studentId);
+    res.json({ message: 'Student deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+})
+
 
 router.put('/addgrade', async (req, res) => {
   const { studentId, grades } = req.body;
@@ -74,9 +83,25 @@ router.put('/addgrade', async (req, res) => {
 //fetch all Subjects
 router.get('/allsubjects',async(req,res)=>{
   const subjects=await Subject.find({});
-  console.log(subjects);
   return res.status(200).json({subjects})
 })
+
+router.get('/subject/:subjectId', async (req, res) => {
+  const subjectId = req.params.subjectId;
+  try {
+    const subject = await Subject.findOne({ _id: subjectId }); 
+
+    if (subject) {
+      return res.status(200).json(subject);
+    } else {
+      return res.status(404).json({ msg: 'No subject found with this ID' });
+    }
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    return res.status(500).json({ msg: 'Internal server error', error });
+  }
+});
+
 
 router.get('/registeredsubjects', async (req, res) => {
   const userId = req.query.userId; 

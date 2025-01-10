@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   USN: {
-    type: Number,
+    type: String,
     default:-1
   },
   department: {

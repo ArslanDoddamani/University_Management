@@ -23,7 +23,9 @@ export const student = {
   addGrades:(studentId: string, grades:{ subjectCode: string; grade: string }[])=>api.put('/student/addgrade',{studentId,grades}),
   getStudents:()=>api.get('/student/allstudents'),
   getSubjects: () => api.get('/student/allsubjects'),
+  getSubjectWithId: (subjectId) => api.get(`/student/subject/${subjectId}`),
   registeredsubjects: (userId) => api.get(`/student/registeredsubjects?userId=${userId}`),
+  deleteStudent:(studentId : string)=>api.delete('/student/deleteStudents',{data: {studentId}}),
 
   getProfile: () => api.get('/student/profile'),
   registerSubjects: (subjectIds: string[]) => 
@@ -56,8 +58,12 @@ export const admin = {
 };
 
 export const Faculty={
-  register:(name:string,email:string,password:string)=>
-    api.post('/faculty/register',{name,email,password}),
+  register:(name:string,email:string,password:string,department:string)=>
+    api.post('/faculty/register',{name,email,password,department}),
   login:(email:string,password:string)=>
     api.post('/Faculty/login',{email,password}),
+
+  getFaculty:()=>api.get('/Faculty/allFaculty'),
+  deleteFaculty:(facultyId : string)=>api.delete('/Faculty/deleteFaculty',{data: {facultyId}}),
+
 }
