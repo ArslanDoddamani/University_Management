@@ -3,6 +3,7 @@ import { auth, checkRole } from '../middleware/auth.js';
 import User from '../models/User.js';
 import Faculty from '../models/Faculty.js';
 const router = express.Router();
+import jwt from 'jsonwebtoken';
 
 //create
 router.post('/register', async (req, res) => {
@@ -40,15 +41,11 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    const faculty = await Faculty.findOne({ email });
+    const faculty = await Faculty.findOne({ email,password });
     if (!faculty) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const isMatch = await faculty.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
 
     const token = jwt.sign(
       { facultyId: faculty._id, role: faculty.role },

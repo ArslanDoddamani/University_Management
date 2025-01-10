@@ -5,11 +5,9 @@ import User from '../models/User.js';
 
 const router = express.Router();
 
-// Register
 router.post('/register', async (req, res) => {
   try {
     const { name, department, dateOfBirth, email, password, phone } = req.body;
-    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
@@ -42,15 +40,10 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { USN, password } = req.body;
     
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ USN,password });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 

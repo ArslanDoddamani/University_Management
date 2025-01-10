@@ -78,6 +78,29 @@ router.get('/allsubjects',async(req,res)=>{
   return res.status(200).json({subjects})
 })
 
+router.get('/registeredsubjects', async (req, res) => {
+  const userId = req.query.userId; 
+   console.log("userId from backend " + userId);
+
+  if (!userId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
+  try {
+    const response = await User.findOne({ _id:userId });
+    if (!response) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const subjects = response.registeredSubjects || [];
+    return res.status(200).json({ subjects });
+  } catch (error) {
+    console.error("Error fetching registered subjects:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 router.get("/getApiKey", (req, res) => {
   const key = process.env.RAZORPAY_API_KEY;
   res.status(200).json({ key });

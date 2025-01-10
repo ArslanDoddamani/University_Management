@@ -16,23 +16,24 @@ const AdminDashboard = () => {
                     <h2 className="text-2xl font-semibold">Add new Subject</h2>
                 </button>
                 <button
+                    onClick={() => navigate('/admin/addFaculty')}
+                    className="p-6 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300"
+                >
+                    <h2 className="text-2xl font-semibold">Add Faculty</h2>
+                </button>
+                <button
                     onClick={() => navigate('/admin/students')}
                     className="p-6 bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700 transform hover:scale-105 transition-all duration-300"
                 >
                     <h2 className="text-2xl font-semibold">All Students</h2>
                 </button>
                 <button
-                    onClick={() => navigate('/admin/payments')}
-                    className="p-6 bg-yellow-600 text-white rounded-lg shadow-lg hover:bg-yellow-700 transform hover:scale-105 transition-all duration-300"
+                    onClick={() => navigate('/admin/allsubjects')}
+                    className="p-6 bg-red-600 text-white rounded-lg shadow-lg hover:bg-green-700 transform hover:scale-105 transition-all duration-300"
                 >
-                    <h2 className="text-2xl font-semibold">Manage Payments</h2>
+                    <h2 className="text-2xl font-semibold">All Subjects</h2>
                 </button>
-                <button
-                    onClick={() => navigate('/admin/grades')}
-                    className="p-6 bg-red-600 text-white rounded-lg shadow-lg hover:bg-red-700 transform hover:scale-105 transition-all duration-300"
-                >
-                    <h2 className="text-2xl font-semibold">Add Grades</h2>
-                </button>
+                
             </div>
         </div>
     );

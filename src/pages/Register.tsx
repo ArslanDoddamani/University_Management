@@ -18,8 +18,11 @@ const Register = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await auth.register(formData);
-      navigate('/login');
+      const response=await auth.register(formData);
+      console.log(response);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('userRole', response.data.user.role);
+      navigate(`/${response.data.user.role}`);
     } catch (error: any) {
       setError(error.response?.data?.message || 'Registration failed');
     }

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import User from './models/User.js';
 
 dotenv.config();
 
@@ -17,6 +18,10 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
+// User.createIndexes(
+//   {USN:1},
+//   {unique:true, partialFilterExpression:{USN:{$ne:null}}}
+// )
 // Routes will be imported here
 import authRoutes from './routes/auth.js';
 import studentRoutes from './routes/student.js';

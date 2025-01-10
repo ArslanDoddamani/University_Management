@@ -6,7 +6,7 @@ import { GraduationCap } from 'lucide-react';
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
+    USN: '',
     password: ''
   });
   const [error, setError] = useState('');
@@ -15,7 +15,7 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await auth.login(formData.email, formData.password);
+      const response = await auth.login(formData.USN, formData.password);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userRole', response.data.user.role);
       navigate(`/${response.data.user.role}`);
@@ -41,19 +41,19 @@ const Login = () => {
           {error && <div className="text-red-500 text-center">{error}</div>}
           <div>
             <label
-              htmlFor="email"
+              htmlFor="USN"
               className="block text-md font-medium text-gray-300"
             >
-              Email
+              USN
             </label>
             <input
               type="text"
-              name="email"
-              id="email"
+              name="USN"
+              id="USN"
               className="mt-1 block w-full pl-3 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-black"
-              placeholder="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="USN"
+              value={formData.USN}
+              onChange={(e) => setFormData({ ...formData, USN: e.target.value })}
             />
           </div>
           <div>

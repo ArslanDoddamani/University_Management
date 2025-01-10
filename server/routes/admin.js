@@ -41,13 +41,33 @@ router.post('/subjects', auth, checkRole(['admin']), async (req, res) => {
   }
 });
 
-// Assign USN to student
-router.patch('/assign-usn/:userId', auth, checkRole(['admin']), async (req, res) => {
+router.get('/allSubjects',async(req,res)=>{
+  try{
+    const subjects=await Subject.find({});
+    res.json(subjects);
+  }
+  catch(err){
+    res.status(500).json({message:'Server error',error:err.message});
+  }
+})
+router.get('/particularSubject', async (req, res) => {
   try {
-    const { usn } = req.body;
+    const subjectId = req.query.subjectId; // Use query parameter instead of body
+    console.log(subjectId);
+    const subject = await Subject.findOne({ _id: subjectId });
+    res.status(200).json({ subject });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Assign USN to student
+router.patch('/assign-usn/:userId', async (req, res) => {
+  try {
+    const { USN } = req.body;
     const user = await User.findByIdAndUpdate(
       req.params.userId,
-      { usn },
+      { USN },
       { new: true }
     );
     res.json(user);
@@ -55,6 +75,19 @@ router.patch('/assign-usn/:userId', auth, checkRole(['admin']), async (req, res)
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+router.delete('/subject', async (req, res) => {
+  try {
+    const subjectId = req.body.subjectId; // Access subjectId from the request body
+    console.log('Subject ID:', subjectId);
+
+    await Subject.findByIdAndDelete(subjectId);
+    res.json({ message: 'Subject deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 
 // Add grades
 router.post('/grades', auth, checkRole(['admin']), async (req, res) => {

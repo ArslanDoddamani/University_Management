@@ -47,6 +47,14 @@ export default function Home() {
                     >
                         Login as Admin
                     </button>
+                    <button
+                        className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-lg rounded-full px-8 py-3 mt-4 transition-transform duration-300 transform hover:scale-105 hover:from-orange-500 hover:to-red-500 shadow-md"
+                        onClick={() => {
+                            navigate('/Facultylogin');
+                        }}
+                    >
+                        Login as Faculty
+                    </button>
                 </div>
 
                 {/* Footer Section */}

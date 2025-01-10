@@ -4,7 +4,7 @@ import { User } from 'lucide-react';
 
 interface StudentProfile {
   name: string;
-  usn: string;
+  USN: number;
   department: string;
   email: string;
   phone: string;
@@ -15,7 +15,6 @@ interface StudentProfile {
 const Profile = () => {
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -53,7 +52,7 @@ const Profile = () => {
 
       {/* Profile Information */}
       <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-800">
-        <InfoField label="USN" value={profile.usn} />
+        <InfoField label="USN" value={profile.USN===-1?'_':profile.USN.toString()} />
         <InfoField label="Department" value={profile.department} />
         <InfoField label="Email" value={profile.email} />
         <InfoField label="Phone" value={profile.phone} />

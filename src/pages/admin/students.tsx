@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { student } from '../../services/api';
-
+import { admin } from '../../services/api';
 interface Subject {
   code: string;
   name: string;
@@ -14,7 +14,7 @@ interface Grade {
 
 interface Student {
   _id: string;
-  usn: string;
+  USN: number;
   name: string;
   department: string;
   dateOfBirth: number;
@@ -75,6 +75,30 @@ const Students = () => {
     if (grades) handleAssignGrades(studentId, grades);
   };
 
+  async function AddUsn(userId: any) {
+    alert("studentId is " + userId);
+    const usnInput = prompt("Enter the USN");
+  
+    // Convert input to a number and handle null or invalid inputs
+    const USN = usnInput ? Number(usnInput) : null;
+  
+    if (USN === null || isNaN(USN)) {
+      alert("Invalid USN. Please enter a valid number.");
+      return;
+    }
+  
+    try {
+      const res = await admin.assignUSN(userId, USN);
+      if (res.status === 200) {
+        alert("USN assigned successfully");
+      } else {
+        alert("Error while assigning USN");
+      }
+    } catch (error) {
+      alert("An error occurred: " + error);
+    }
+  }
+  
   return (
     <div className="bg-gray-800 text-white min-h-screen py-6 px-4">
       <h1 className="text-3xl font-semibold text-center mb-6">Student Details</h1>
@@ -85,7 +109,7 @@ const Students = () => {
           {students.map((student) => (
             <div className="bg-gray-700 p-6 rounded-lg shadow-lg" key={student._id}>
               <h2 className="text-2xl font-semibold mb-2">{student.name}</h2>
-              <p className="text-gray-400">University Roll No: {student.usn || 'Not assigned'}</p>
+              <p className="text-gray-400">University Roll No: {student.USN || 'Not assigned'}</p>
               <p className="text-gray-400">Department: {student.department}</p>
               <p className="text-gray-400">Date of Birth: {new Date(student.dateOfBirth).toLocaleDateString()}</p>
               <p className="text-gray-400">Email: {student.email}</p>
@@ -94,61 +118,33 @@ const Students = () => {
               
               <div className="mt-4">
                 <p className="text-lg font-semibold text-gray-200">Registered Subjects:</p>
-                <ul className="space-y-4">
-                  {student.registeredSubjects.length === 0 ? (
-                    <li>No subjects registered</li>
-                  ) : (
-                    student.registeredSubjects.map((subject) => (
-                      <li key={subject.code} className="bg-gray-600 p-4 rounded-lg">
-                        <p className="text-lg font-semibold">{subject.name} (Code: {subject.code}, Credits: {subject.credits})</p>
-                        <div className="flex items-center space-x-4">
-                          <label htmlFor={`grade-${student._id}-${subject.code}`} className="text-gray-300">Grade:</label>
-                          <input
-                            id={`grade-${student._id}-${subject.code}`}
-                            type="text"
-                            className="bg-gray-500 text-white rounded-md p-2 w-24"
-                            value={
-                              student.grades.find((g) => g.subjectCode === subject.code)?.grade || ''
-                            }
-                            onChange={(e) => {
-                              const updatedStudents = students.map((s) => {
-                                if (s._id === student._id) {
-                                  const updatedGrades = s.grades.map((g) =>
-                                    g.subjectCode === subject.code
-                                      ? { ...g, grade: e.target.value }
-                                      : g
-                                  );
-                                  const newGrade = {
-                                    subjectCode: subject.code,
-                                    grade: e.target.value,
-                                  };
-                                  const isGradeNew = !updatedGrades.find(
-                                    (g) => g.subjectCode === subject.code
-                                  );
-
-                                  return {
-                                    ...s,
-                                    grades: isGradeNew
-                                      ? [...updatedGrades, newGrade]
-                                      : updatedGrades,
-                                  };
-                                }
-                                return s;
-                              });
-                              handleGradeChange(
-                                student._id,
-                                subject.code,
-                                e.target.value,
-                                updatedStudents
-                              );
-                            }}
-                          />
-                        </div>
-                      </li>
-                    ))
-                  )}
-                </ul>
+                {student.registeredSubjects.map((subject)=>{
+                  return(
+                    <div>
+                      <p className="text-gray-400">{subject}</p>
+                      <p>Current Grade --</p>
+                      <div className='m-2'>
+                      <select className='bg-black'>
+                        <option value="A">O</option>
+                        <option value="W">A+</option>
+                        <option value="F">A</option>
+                        <option value="A">B+</option>
+                        <option value="W">B</option>
+                        <option value="F">C</option>
+                        <option value="A">P</option>
+                        <option value="W">F</option>
+                        <option value="F">PP</option>
+                        <option value="A">NP</option>
+                        <option value="W">NE</option>
+                        <option value="F">W</option>
+                      </select>
+                      <button className='ml-2 border-2 boder-black bg-black p-1 cursor-pointer'>ADD/Change Grade</button>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
+          <button className='border-2 border-black mt-2 p-2 bg-black cursor-pointer' onClick={()=>AddUsn(student._id)}>Assign USN</button>
             </div>
           ))}
         </div>

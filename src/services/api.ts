@@ -13,8 +13,8 @@ api.interceptors.request.use((config) => {
 });
 
 export const auth = {
-  login: (email: string, password: string) => 
-    api.post('/auth/login', { email, password }),
+  login: (USN: string, password: string) => 
+    api.post('/auth/login', { USN, password }),
   register: (userData: any) => 
     api.post('/auth/register', userData)
 };
@@ -23,6 +23,8 @@ export const student = {
   addGrades:(studentId: string, grades:{ subjectCode: string; grade: string }[])=>api.put('/student/addgrade',{studentId,grades}),
   getStudents:()=>api.get('/student/allstudents'),
   getSubjects: () => api.get('/student/allsubjects'),
+  registeredsubjects: (userId) => api.get(`/student/registeredsubjects?userId=${userId}`),
+
   getProfile: () => api.get('/student/profile'),
   registerSubjects: (subjectIds: string[]) => 
     api.post('/student/register-subjects', { subjectIds }),
@@ -40,8 +42,22 @@ export const admin = {
     api.post('/admin/subjects', subjectData),
   login:(email:string,password:string)=>
     api.post('/admin/login',{email,password}),
-  assignUSN: (userId: string, usn: string) =>
-    api.patch(`/admin/assign-usn/${userId}`, { usn }),
+  assignUSN: (userId: string, USN: Number) =>
+    api.patch(`/admin/assign-usn/${userId}`, { USN }),
   addGrades: (gradeData: any) =>
-    api.post('/admin/grades', gradeData)
+    api.post('/admin/grades', gradeData),
+  allSubjects:()=>
+    api.get('/admin/allSubjects'),
+  DeleteSubject: (subjectId: string) =>
+    api.delete('/admin/subject', { data: { subjectId } }),  
+  FindSubject: (subjectId: string) =>
+    api.get(`/admin/particularSubject?subjectId=${subjectId}`)
+  
 };
+
+export const Faculty={
+  register:(name:string,email:string,password:string)=>
+    api.post('/faculty/register',{name,email,password}),
+  login:(email:string,password:string)=>
+    api.post('/Faculty/login',{email,password}),
+}

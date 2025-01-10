@@ -1,123 +1,82 @@
 import React, { useEffect, useState } from 'react';
 import { student } from '../../services/api';
-import { BookOpen } from 'lucide-react';
-
-interface Subject {
-  _id: string;
-  code: string;
-  name: string;
-  credits: number;
-}
-
-interface Grade {
-  subject: Subject;
-  grade: string;
-  points: number;
-}
-
-interface SemesterResult {
-  grades: Grade[];
-  sgpa: number;
-  totalCredits: number;
-}
-
-interface Results {
-  semesterResults: { [key: string]: SemesterResult };
-  cgpa: number;
-}
+import { admin } from '../../services/api';
+import {jwtDecode} from 'jwt-decode';
 
 const Semester = () => {
-  const [results, setResults] = useState<Results | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [subjects, setSubjects] = useState([]);
+
+
+  // Function to fetch registered subject details
+  async function fetchRegisteredSubjects() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('User not logged in');
+
+      const decode = jwtDecode(token);
+      const userId = decode.userId;
+      alert(userId);
+
+      // Step 1: Fetch registered subject IDs
+      const res = await student.registeredsubjects(userId); // API returns {"subjects": [...]}
+      const subjectIds = res.data.subjects;
+
+      // Step 2: Fetch full details of each subject using IDs
+      const subjectsData = await Promise.all(
+        subjectIds.map(async (subjectId:string) => {
+          const subjectDetails = await admin.FindSubject(subjectId);
+          return subjectDetails.data; // Assuming each API call returns detailed subject data
+        })
+      );
+
+      console.log(subjectsData);
+
+      // Step 3: Update state and calculate SGPA/CGPA
+      setSubjects(subjectsData);
+      // calculateGrades(subjectsData);
+    } catch (error) {
+      console.error('Error fetching registered subjects:', error);
+    }
+  }
+
 
   useEffect(() => {
-    const fetchResults = async () => {
-      try {
-        const response = await student.getResults();
-        setResults(response.data);
-      } catch (error) {
-        console.error('Error fetching results:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResults();
+    fetchRegisteredSubjects();
   }, []);
 
-  if (loading) {
-    return <div className="flex justify-center">Loading...</div>;
-  }
-
-  if (!results) {
-    return <div>No results found</div>;
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Academic Performance</h2>
-          <div className="text-lg font-semibold text-indigo-600">
-            CGPA: {results.cgpa.toFixed(2)}
-          </div>
-        </div>
-
-        {Object.entries(results.semesterResults).map(([semester, result]) => (
-          <SemesterCard
-            key={semester}
-            semester={parseInt(semester)}
-            result={result}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const SemesterCard = ({ 
-  semester, 
-  result 
-}: { 
-  semester: number; 
-  result: SemesterResult 
-}) => (
-  <div className="border rounded-lg p-4 mb-4">
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center space-x-2">
-        <BookOpen className="h-5 w-5 text-indigo-600" />
-        <h3 className="text-lg font-semibold">Semester {semester}</h3>
-      </div>
-      <div className="text-indigo-600 font-semibold">
-        SGPA: {result.sgpa.toFixed(2)}
-      </div>
-    </div>
-
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
+    <div>
+      <h1>Registered Subjects</h1>
+      <table className="min-w-full border-collapse border border-gray-300">
         <thead>
           <tr>
-            <th className="px-4 py-2 text-left">Code</th>
-            <th className="px-4 py-2 text-left">Subject</th>
-            <th className="px-4 py-2 text-center">Credits</th>
-            <th className="px-4 py-2 text-center">Grade</th>
-            <th className="px-4 py-2 text-center">Points</th>
+            <th className="border border-gray-300 px-4 py-2">Subject Code</th>
+            <th className="border border-gray-300 px-4 py-2">Subject Name</th>
+            <th className="border border-gray-300 px-4 py-2">Credits</th>
+            <th className="border border-gray-300 px-4 py-2">department</th>
+            <th className="border border-gray-300 px-4 py-2">semester</th>
+            <th className="border border-gray-300 px-4 py-2">Registration fees</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200">
-          {result.grades.map((grade) => (
-            <tr key={grade.subject._id}>
-              <td className="px-4 py-2">{grade.subject.code}</td>
-              <td className="px-4 py-2">{grade.subject.name}</td>
-              <td className="px-4 py-2 text-center">{grade.subject.credits}</td>
-              <td className="px-4 py-2 text-center font-semibold">{grade.grade}</td>
-              <td className="px-4 py-2 text-center">{grade.points}</td>
+        <tbody>
+          {subjects.map((subject) => (
+            <tr key={subject._id}>
+              <td className="border border-gray-300 px-4 py-2 ">{subject.subject.code}</td>
+              <td className="border border-gray-300 px-4 py-2">{subject.subject.name}</td>
+              <td className="border border-gray-300 px-4 py-2">{subject.subject.credits}</td>
+              <td className="border border-gray-300 px-4 py-2">{subject.subject.department}</td>
+              <td className="border border-gray-300 px-4 py-2">{subject.subject.semester}</td>
+              <td className="border border-gray-300 px-4 py-2">{subject.subject.fees.registration}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      {/* <div className="mt-4">
+        <p>SGPA: {sgpa.toFixed(2)}</p>
+        <p>CGPA: {cgpa.toFixed(2)}</p>
+      </div> */}
     </div>
-  </div>
-);
+  );
+};
 
 export default Semester;
