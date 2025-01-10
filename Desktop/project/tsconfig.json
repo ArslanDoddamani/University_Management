@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "jsx": "react", // Or "react-jsx" if using React 17+ JSX Transform
+    "allowJs": true, // This allows TypeScript to handle JavaScript files
+    "esModuleInterop": true
+  }
+}
