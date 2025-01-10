@@ -11,8 +11,10 @@ import Subjects from './pages/admin/subjects';
 import Students from './pages/admin/students';
 import Allsubjects from './pages/admin/Allsubjects';
 import FacultyLogin from './pages/FacultyLogin';
-import AddFaculty from './pages/admin/addFaculty';
+import AddFaculty from './pages/admin/AddFaculty';
+import AllFaculty from './pages/admin/AllFaculty';
 import FacultyDashboard from './pages/FacultyDashboard';
+import StudentSubjects from './pages/admin/StudentSubjects';
 
 function App() {
   return (
@@ -28,7 +30,9 @@ function App() {
           <Route path="/admin/subjects" element={<Subjects/>}></Route>
           <Route path="/admin/students" element={<Students/>}></Route>
           <Route path="/admin/allsubjects" element={<Allsubjects/>}></Route>
+          <Route path="/admin/allFaculty" element={<AllFaculty/>}></Route>
           <Route path="/admin/addFaculty" element={<AddFaculty/>}></Route>
+          <Route path="/admin/students/:studentId/subjects" element={<StudentSubjects />} />
           
           
           {/* Student Routes */}
