@@ -1,0 +1,361 @@
+@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+
+*{
+  margin:0px;
+  padding:0px;
+}
+
+.loading_msg{
+  font-size:25px;
+}
+
+.error_msg{
+  font-size:25px;
+  color:red;
+}
+
+.login_page{
+  margin: 0px 250px 0px 250px;
+   padding:20px;
+   width:750px;
+   border:2px solid black;
+   background-color:white;
+   text-align: center;
+   border-radius:10px;
+   align-items:center;
+   display:flex;
+   justify-content:center;
+}
+
+
+#login_image{
+  width:500px;
+  height:400px;
+}
+
+h1{
+  text-align: center;
+  font-family:lobster;
+  letter-spacing: 0.1cap;
+  font-size:50px;
+  font-weight:600;
+  font-weight:400;
+  margin:10px;
+}
+
+.forms input{
+  padding:5px;
+  width:200px;
+  height:25px;
+  margin-left:0px;
+}
+
+
+#login_btn,#signup_btn{
+text-align: center;
+  border-radius:5px;
+  border:none;
+  width:100px;
+  height:40px;
+  cursor:pointer;
+  margin-top:15px;
+  background-color:#3498db;
+  color:white;
+
+}
+
+.path{
+  text-decoration:none;
+  color:red;
+  margin-left:3px;
+  font-weight:540;
+  cursor:pointer;
+}
+
+.admin_login{
+  padding-top:20px;
+  width:400px;
+  height:60vh;
+  background-color:white;
+  border-radius:8px;
+}
+
+.admin_page{
+  display:flex;
+  justify-content:center;
+  align-items: center;
+  flex-direction:column;
+  background-image:url('https://e1.pxfuel.com/desktop-wallpaper/754/1015/desktop-wallpaper-40-admin-creative-admin-backgrounds-full-admin-thumbnail.jpg');
+  height:100vh;
+  width:100%;
+  background-size: cover;
+}
+main{
+  display:flex;
+  justify-content: center;
+}
+.admin_login form{
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction:column;
+}
+
+form input{
+  margin-top:35px;
+  width:200px;
+  height:15px;
+  margin:10px;
+  padding:15px;
+}
+
+form button{
+  color:white;
+  cursor:pointer;
+  background-color:#006266;
+  border-radius:5px;
+  border-color:none;
+  padding:10px 30px 10px 30px;
+  margin:20px;
+  width:200px;
+  font-weight:600px;
+}
+
+#admin_pass{
+  color:red;
+  font-weight:600;
+  margin-top:0px;
+  cursor:pointer;
+
+}
+
+.main_page{
+  margin-left:10px;
+  height:100vh;
+  background-color:black;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content:center;
+}
+
+.main_page h1{
+  color:white;
+}
+
+.change_route{
+  display:flex;
+  text-align: center;
+  justify-content: center;
+  margin-top:-5px;
+}
+
+.homepage{
+  display:flex;
+  justify-content:center;
+}
+
+#dashboard_heading{
+  margin-bottom:25px;
+}
+.buttons{
+  margin-top:25px;
+  margin-left:80px;
+  margin-right:-420px;
+  display:flex;
+  justify-content:space-between;
+}
+.buttons button{
+  padding:10px;
+  text-align:center;
+  height:40px;
+  color:white;
+  background-color:black;
+  border-radius:10px;
+  font-weight:600;
+  width:80px;
+  margin:5px; 
+  cursor:pointer;
+}
+
+#highlight{color:rgb(110 150 207 / var(--tw-text-opacity));
+--tw-text-opacity:1;}
+
+
+#courseheading{
+  color:white;
+  font-size:25px;
+  margin-left:20px;
+  margin-top:30px;
+}
+
+.displayCourses{
+  background-color:black;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+}
+
+
+#coursePrice{
+  color:rgb(110 150 207 / var(--tw-text-opacity));
+--tw-text-opacity:9;
+  text-align:center;
+}
+
+.logo img{
+  width:  100px;
+  height: 100px;
+  border-radius:8px;
+  margin-top:10px;
+  margin-left:-420px;
+}
+
+#purchased_courses{
+  margin-top:10px;
+  height:30px;
+  color:white;
+  padding:2px;
+  cursor:pointer;
+  background-color: #27ae60;
+
+}
+
+#warning{
+  color:red;
+  font-size:20px;
+  font-weight:400;
+  margin-left:10px;
+}
+.error_msg{
+  display:flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error_msg img{
+  width:250px;
+  height:250px;
+}
+.purchase_navbar{
+  display:flex;
+  justify-content: space-between;
+  margin:10px;
+}
+.purchase_navbar h1{
+  color:white;
+}
+.coursedetails{
+  max-width:380px;
+  display: inline-block;
+  margin:10px;
+  border-radius:10px;
+  background-color: white;
+  border:2px solid black;
+
+}
+@media only screen and (max-width:500px) {
+  .image{
+    display:none;
+  }
+}
+.dashboard{
+  background-color: black;
+  width:100vw;
+  height:100vh;
+}
+
+#course_img{
+  height:250px;
+  width: 100%;
+}
+
+#course_title{
+  overflow:visible;
+  word-wrap: break-word;
+  font-size:30px;
+  font-weight:600; 
+  text-decoration:underline;
+}
+
+#coursedescription{
+  overflow:visible;
+  word-wrap: break-word;
+  font-size:18px;
+  margin-bottom:10px;
+  margin-left:4px;
+
+}
+
+#courseprice{
+  font-family:"poppins";
+  margin-left:2px;
+
+}
+.errormessage{
+  flex-direction: column;
+  display:flex;
+  text-align: center;
+  font-size:30px;
+  justify-content: center;
+  align-items: center;
+  color:red;
+}
+.errormessage img{
+
+  height:200px;
+  width:200px;
+}
+#PurchaseBtn {
+  color: white;
+  background-color: #27ae60;
+  height: 40px;
+  width: 100%; /* Adjust width as needed */
+  cursor: pointer;
+  padding: 6px;
+
+}
+
+.purchasesection {
+  position: absolute;
+  bottom: 0;
+  left: 1px;
+  width: 100%;
+  text-align: center;
+  padding-bottom: 5px; /* Add some padding between the price and button */
+}
+
+#courseprice {
+  margin-bottom: 5px; /* Adjust margin between price and button */
+}
+
+.coursedetails {
+  max-width: 380px;
+  display: inline-block;
+  margin: 10px;
+  border-radius: 10px;
+  background-color: white;
+  border: 2px solid black;
+  position: relative;
+  padding-bottom: 50px; /* Adjust bottom padding to accommodate the button */
+  min-height:400px;
+  
+}
+
+.purchaseBtnContainer {
+  position: absolute;
+  bottom: 10px; /* Adjust button position */
+  width: calc(100% - 20px); /* Adjust button width */
+  text-align: center;
+}
+
+.purchaseBtnContainer button {
+  color: white;
+  background-color: #27ae60;
+  height: 40px;
+  width: 100%;
+  cursor: pointer;
+  border: none; /* Remove button border */
+  border-radius: 5px;
+  margin-top: 10px; /* Add margin between buttons */
+  font-weight: 600;
+}
