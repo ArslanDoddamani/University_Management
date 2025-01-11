@@ -3,6 +3,7 @@ import { Faculty } from "../../services/api";
 
 export default function AllFaculty() {
   const [faculties, setFaculties] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function fetchFaculties() {
@@ -24,7 +25,7 @@ export default function AllFaculty() {
     if (!confirmDelete) return;
 
     try {
-      await Faculty.deleteFaculty(facultyId); // Assuming this function exists in `faculty` service
+      await Faculty.deleteFaculty(facultyId); // Assuming this function exists in `Faculty` service
       alert(`${name} deleted successfully.`);
       setFaculties((prev) =>
         prev.filter((faculty) => faculty._id !== facultyId)
@@ -34,12 +35,35 @@ export default function AllFaculty() {
     }
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  const filteredFaculties = faculties.filter(
+    (faculty) =>
+      faculty.name.toLowerCase().includes(searchQuery) ||
+      faculty.department.toLowerCase().includes(searchQuery)
+  );
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <h1 className="text-2xl font-bold mb-6 text-center">All Faculty</h1>
+
+      {/* Search Bar */}
+      <div className="max-w-3xl mx-auto mb-6">
+        <input
+          type="text"
+          placeholder="Search by Name or Department"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="w-full bg-gray-800 text-white p-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400"
+        />
+      </div>
+
+      {/* Faculty Table */}
       <div className="overflow-x-auto">
         <div className="max-w-3xl mx-auto bg-gray-800 rounded-lg shadow-lg">
-          {faculties.length > 0 ? (
+          {filteredFaculties.length > 0 ? (
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-700 text-left text-sm font-semibold">
@@ -50,7 +74,7 @@ export default function AllFaculty() {
                 </tr>
               </thead>
               <tbody>
-                {faculties.map((faculty, index) => (
+                {filteredFaculties.map((faculty, index) => (
                   <tr
                     key={faculty._id}
                     className="even:bg-gray-700 odd:bg-gray-800 hover:bg-gray-600"

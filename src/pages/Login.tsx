@@ -18,6 +18,8 @@ const Login = () => {
       const response = await auth.login(formData.USN, formData.password);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userRole', response.data.user.role);
+      console.log(response.data)
+      localStorage.setItem('usn', response.data.user.USN);
       navigate(`/${response.data.user.role}`);
     } catch (error) {
       setError('Invalid credentials');
