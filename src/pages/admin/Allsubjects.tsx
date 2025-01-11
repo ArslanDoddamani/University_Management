@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { admin } from "../../services/api";
 
-export default function Allsubjects() {
+export default function AllSubjects() {
   const [subjects, setSubjects] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("");
 
   useEffect(() => {
     async function fetchSubjects() {
@@ -17,8 +19,10 @@ export default function Allsubjects() {
     fetchSubjects();
   }, []);
 
-  async function DeleteSubject(subjectId: any, name: String) {
-    const res = confirm("Are you sure you want to delete the subject " + name + "?");
+  async function DeleteSubject(subjectId: any, name: string) {
+    const res = confirm(
+      "Are you sure you want to delete the subject " + name + "?"
+    );
     if (!res) return;
 
     try {
@@ -32,11 +36,68 @@ export default function Allsubjects() {
     }
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const option = e.target.value;
+    setSortOption(option);
+
+    const sortedSubjects = [...subjects].sort((a, b) => {
+      if (option === "Name") {
+        return a.name.localeCompare(b.name);
+      } else if (option === "Semester") {
+        return a.semester - b.semester;
+      } else if (option === "Department") {
+        return a.department.localeCompare(b.department);
+      } else if (option === "Credits") {
+        return a.credits - b.credits;
+      }
+      return 0;
+    });
+
+    setSubjects(sortedSubjects);
+  };
+
+  const filteredSubjects = subjects.filter(
+    (subject) =>
+      subject.code.toLowerCase().includes(searchQuery) ||
+      subject.name.toLowerCase().includes(searchQuery)
+  );
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <h1 className="text-2xl font-bold mb-6 text-center">All Subjects</h1>
+
+      {/* Search and Sort Options */}
+      <div className="flex flex-col md:flex-row items-center justify-between mb-6 bg-gray-800 p-4 rounded-lg shadow-lg">
+        {/* Search Input */}
+        <input
+          type="text"
+          placeholder="Search by Subject Code or Name"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="bg-gray-700 text-white p-2 rounded-lg shadow-md w-full md:w-1/3 mb-4 md:mb-0 focus:outline-none focus:ring-2 focus:ring-teal-400"
+        />
+
+        {/* Sort Dropdown */}
+        <select
+          value={sortOption}
+          onChange={handleSortChange}
+          className="bg-gray-700 text-white p-2 rounded-lg shadow-md w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-teal-400"
+        >
+          <option value="">Sort By</option>
+          <option value="Name">Subject Name</option>
+          <option value="Semester">Semester</option>
+          <option value="Department">Department</option>
+          <option value="Credits">Credits</option>
+        </select>
+      </div>
+
+      {/* Subjects Table */}
       <div className="overflow-x-auto">
-        {subjects.length > 0 ? (
+        {filteredSubjects.length > 0 ? (
           <table className="w-full border-collapse bg-gray-800 rounded-lg shadow-lg">
             <thead>
               <tr className="bg-gray-700 text-left text-sm font-semibold">
@@ -59,7 +120,7 @@ export default function Allsubjects() {
               </tr>
             </thead>
             <tbody>
-              {subjects.map((subject) => (
+              {filteredSubjects.map((subject) => (
                 <tr
                   key={subject._id}
                   className="even:bg-gray-700 odd:bg-gray-800 hover:bg-gray-600"

@@ -19,9 +19,10 @@ const Register = () => {
     e.preventDefault();
     try {
       const response=await auth.register(formData);
-      console.log(response);
+      console.log(response.data.user.USN);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userRole', response.data.user.role);
+      localStorage.setItem('usn', response.data.user.USN);
       navigate(`/${response.data.user.role}`);
     } catch (error: any) {
       setError(error.response?.data?.message || 'Registration failed');

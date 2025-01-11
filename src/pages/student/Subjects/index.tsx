@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { student } from '../../../services/api';
-import { jwtDecode } from 'jwt-decode';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { student } from "../../../services/api";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 interface Subject {
   _id: string;
@@ -24,65 +24,77 @@ interface JwtPayload {
 
 const Subjects: React.FC = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [usn, setUsn] = useState<string | null>("");
 
   useEffect(() => {
-    async function fetchSubjects() {
-      try {
-        const response = await student.getSubjects();
-        setSubjects(response.data.subjects);
-      } catch (error) {
-        console.error('Error fetching subjects:', error);
-      }
-    }
-
-    fetchSubjects();
+    const storedUsn = localStorage.getItem("usn");
+    setUsn(storedUsn);
   }, []);
 
-  async function initiatePayment(SubjectId: string) {
-    alert('SubjectId is ' + SubjectId);
+  useEffect(() => {
+    if (usn !== "-1") {
+      async function fetchSubjects() {
+        try {
+          const response = await student.getSubjects();
+          setSubjects(response.data.subjects);
+        } catch (error) {
+          console.error("Error fetching subjects:", error);
+        }
+      }
 
-    const token = localStorage.getItem('token');
+      fetchSubjects();
+    }
+  }, [usn]);
+
+  async function initiatePayment(SubjectId: string) {
+    alert("SubjectId is " + SubjectId);
+
+    const token = localStorage.getItem("token");
     if (!token) {
-      alert('No token found. Please login again.');
+      alert("No token found. Please login again.");
       return;
     }
 
     const decoded: JwtPayload = jwtDecode(token);
     const userId = decoded.userId;
 
-    console.log('User ID: ', userId);
+    console.log("User ID: ", userId);
 
-    alert('Redirecting you to payment page');
+    alert("Redirecting you to payment page");
 
     try {
       const orderResponse = await student.createOrder(SubjectId, userId);
       const { order } = orderResponse.data;
-      console.log('Order Response: ', orderResponse);
+      console.log("Order Response: ", orderResponse);
 
       const apiKeyResponse = await student.getApiKey();
       const apiKey: string = apiKeyResponse.data;
-      console.log('Razorpay API Key: ', apiKey);
+      console.log("Razorpay API Key: ", apiKey);
 
       const options = {
         key: apiKey,
         amount: order.amount,
         currency: order.currency,
         order_id: order.id,
-        callback_url: 'http://localhost:3001/api/student/verifypayment',
+        callback_url: "http://localhost:3001/api/student/verifypayment",
         prefill: {
-          name: 'Your Name',
-          email: 'email@example.com',
+          name: "Your Name",
+          email: "email@example.com",
         },
         theme: {
-          color: '#3399cc',
+          color: "#3399cc",
         },
         handler: (response: any) => {
-          console.log('Payment handler response: ', response);
-          const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = response;
+          console.log("Payment handler response: ", response);
+          const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+          } = response;
 
           // Verify payment
           axios
-            .post('http://localhost:3001/api/student/verifypayment', {
+            .post("http://localhost:3001/api/student/verifypayment", {
               razorpay_order_id,
               razorpay_payment_id,
               razorpay_signature,
@@ -91,14 +103,14 @@ const Subjects: React.FC = () => {
             })
             .then((verifyResponse) => {
               if (verifyResponse.data.success) {
-                alert('Payment successful and course added!');
+                alert("Payment successful and course added!");
               } else {
-                alert('Payment verification failed');
+                alert("Payment verification failed");
               }
             })
             .catch((error) => {
-              console.error('Error in payment verification: ', error);
-              alert('Error verifying payment. Please try again.');
+              console.error("Error in payment verification: ", error);
+              alert("Error verifying payment. Please try again.");
             });
         },
       };
@@ -106,9 +118,20 @@ const Subjects: React.FC = () => {
       const rzp1 = new (window as any).Razorpay(options);
       rzp1.open();
     } catch (error) {
-      console.error('Error during payment initiation: ', error);
-      alert('Error during payment initiation. Please try again.');
+      console.error("Error during payment initiation: ", error);
+      alert("Error during payment initiation. Please try again.");
     }
+  }
+
+  if (usn === "-1") {
+    return (
+      <div className="subjects-container bg-gray-900 text-white p-6 rounded-lg shadow-lg">
+        <h1 className="text-3xl font-bold text-center mb-6">Available Subjects</h1>
+        <p className="text-center text-xl text-gray-400">
+          Your USN has not been assigned by the admin yet. Please contact the admin for assistance.
+        </p>
+      </div>
+    );
   }
 
   return (
