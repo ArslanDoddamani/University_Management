@@ -131,104 +131,98 @@ router.get("/getApiKey", (req, res) => {
   res.status(200).json({ key });
 });
 
+
 router.post("/purchase", async (req, res) => {
-  const SubjectId = req.body.SubjectId;
-  const userId = req.body.userId;
-  console.log("User ID is: " + userId);
-  console.log("Subject ID is: " +SubjectId);
-
+  const { userId } = req.body;
   try {
-      const subject = await Subject.findById(SubjectId);
-      if (!subject) {
-          return res.status(404).json({ msg: "Subject not found" });
-      }
+    // Fetch all subjects for the semester
+    const subjects = await Subject.find({});
+    if (!subjects.length) {
+      return res.status(404).json({ success: false, msg: "No subjects found for registration" });
+    }
 
-      const price = subject.price;
-      console.log("Subject price: " + price);
+    const price = 1500; // Fixed price for all subjects in a semester
 
-      // Razorpay order options
-      const options = {
-          amount: Number(price * 100) || Number(1500*100), // amount in the smallest currency unit (paise)
-          currency: "INR",
-      };
+    // Razorpay order options
+    const options = {
+      amount: price * 100, // Amount in paise
+      currency: "INR",
+    };
 
-      // Create the order in Razorpay
-      const order = await instance.orders.create(options);
-      console.log("Created order: ", order);
-
-      return res.status(200).json({
-          price,
-          success: true,
-          order, // send order info to the frontend
-      });
+    // Create Razorpay order
+    const order = await instance.orders.create(options);
+    return res.status(200).json({
+      success: true,
+      price,
+      order, // Send order details to the frontend
+    });
   } catch (error) {
-      console.error("Error in purchase route:", error);
-      return res.status(500).json({ msg: "inside catch"+error });
+    console.error("Error in purchase route:", error);
+    return res.status(500).json({ success: false, msg: "Internal Server Error" });
   }
 });
 
-
+// Payment verification route
 router.post("/verifypayment", async (req, res) => {
   try {
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      SubjectId,
-      userId,
-    } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userId } = req.body;
 
-    console.log("Verification initiated...");
-    console.log("Razorpay Order ID:", razorpay_order_id);
-    console.log("Razorpay Payment ID:", razorpay_payment_id);
-    console.log("Provided Signature:", razorpay_signature);
-    console.log("Subject ID:", SubjectId);
-    console.log("User ID:", userId);
-
-    // Step 1: Verify the payment signature
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_API_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
-    console.log("Expected Signature:", expectedSignature);
-
     if (expectedSignature !== razorpay_signature) {
-      console.error("Signature mismatch! Payment verification failed.");
-      return res
-        .status(400)
-        .json({ success: false, msg: "Payment verification failed" });
+      return res.status(400).json({ success: false, msg: "Payment verification failed" });
     }
 
-    console.log("Payment signature verified.");
+    // Fetch all subjects to register
+    const subjects = await Subject.find({});
+    if (!subjects.length) {
+      return res.status(404).json({ success: false, msg: "No subjects found for registration" });
+    }
 
-    // Step 2: Find the user in the database
+    // Add subjects to the user's registered subjects
     const user = await User.findById(userId);
     if (!user) {
-      console.error("User not found!");
-      return res.status(404).json({ msg: "User not found" });
+      return res.status(404).json({ success: false, msg: "User not found" });
     }
 
-    console.log("User found:", user.name);
+    const subjectIds = subjects.map((subject) => subject._id);
+    user.registeredSubjects.push(...subjectIds);
 
-    // Step 3: Add the subject to the user's registeredSubjects if not already added
-    if (!user.registeredSubjects.includes(SubjectId)) {
-      user.registeredSubjects.push(SubjectId);
-      await user.save();
-      console.log(`Subject ${SubjectId} added to user ${userId}.`);
-    } else {
-      console.log(`Subject ${SubjectId} already registered for user ${userId}.`);
-    }
+    // Log payment
+    user.payments.push({
+      amount: 1500,
+      type: "Registration fees",
+      status: "completed",
+    });
 
-    // Step 4: Send success response
-    return res
-      .status(200)
-      .json({ success: true, msg: "Payment verified and subject added" });
+    await user.save();
+    return res.status(200).json({ success: true, msg: "Payment verified and subjects registered" });
   } catch (error) {
     console.error("Error in payment verification:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
   }
 });
+
+// Route to fetch payment history
+router.get('/payments/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId).select('payments');
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    res.status(200).json(user.payments);
+  } catch (error) {
+    console.error('Error fetching payment history:', error);
+    res.status(500).json({ success: false, msg: 'Internal Server Error' });
+  }
+});
+
 
 
 

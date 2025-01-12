@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { student } from '../../../services/api';
 import PaymentCard from './PaymentCard';
 import { AlertCircle } from 'lucide-react';
+import { jwtDecode } from 'jwt-decode';
 
 interface Payment {
   _id: string;
   amount: number;
-  type: 'ExamFee' | 'ChallengeValuation' | 'F' | 'W';
-  status: 'pending' | 'completed' | 'failed';
+  type: string; // 'ExamFee' | 'ChallengeValuation' | 'F' | 'W';
+  status: string; // 'pending' | 'completed' | 'failed';
   createdAt: string;
   subject?: {
     name: string;
@@ -23,7 +24,10 @@ const PaymentHistory = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const response = await student.getPayments();
+        const token=localStorage.getItem('token');
+        const decoded=jwtDecode(token);
+        const userId=decoded.userId;
+        const response = await student.getPaymentHistory(userId) // Replace {userId} dynamically
         setPayments(response.data);
       } catch (error) {
         setError('Failed to load payment history');
@@ -49,7 +53,7 @@ const PaymentHistory = () => {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Payment History</h2>
-      
+
       {payments.length === 0 ? (
         <div className="text-center text-gray-500 py-8">
           No payment history available

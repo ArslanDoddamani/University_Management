@@ -33,6 +33,13 @@ const Dashboard = () => {
                 <span>Profile</span>
               </Link>
               <Link
+                to="payments"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-300 hover:bg-indigo-600 hover:text-white transition-all duration-200"
+              >
+                <User className="h-5 w-5" />
+                <span>Payments</span>
+              </Link>
+              <Link
                 to="semester"
                 className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-300 hover:bg-indigo-600 hover:text-white transition-all duration-200"
               >

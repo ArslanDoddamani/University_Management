@@ -15,6 +15,7 @@ import AddFaculty from './pages/admin/AddFaculty';
 import AllFaculty from './pages/admin/AllFaculty';
 import FacultyDashboard from './pages/FacultyDashboard';
 import StudentSubjects from './pages/admin/StudentSubjects';
+import PaymentHistory from './pages/student/PaymentHistory';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <Routes>
           <Route path="/" element={<Home/>}/>
+          <Route path="/student/payments" element={<PaymentHistory/>}/>
           <Route path="/login" element={<Login />} />
           <Route path="/Facultylogin" element={<FacultyLogin />} />
           <Route path="/Faculty/dashboard" element={<FacultyDashboard/>} />

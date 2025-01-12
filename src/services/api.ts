@@ -23,6 +23,7 @@ export const student = {
   addGrades:(studentId: string, grades:{ subjectCode: string; grade: string }[])=>api.put('/student/addgrade',{studentId,grades}),
   getStudents:()=>api.get('/student/allstudents'),
   getSubjects: () => api.get('/student/allsubjects'),
+  getPaymentHistory: (userId) => api.get(`/student/payments/${userId}`),
   getSubjectWithId: (subjectId) => api.get(`/student/subject/${subjectId}`),
   registeredsubjects: (userId) => api.get(`/student/registeredsubjects?userId=${userId}`),
   deleteStudent:(studentId : string)=>api.delete('/student/deleteStudents',{data: {studentId}}),
@@ -34,9 +35,9 @@ export const student = {
     api.post('/student/challenge-valuation', { subjectId }),
   getPayments: () => api.get('/student/payments'),
   getResults: () => api.get('/student/results'),
-  createOrder:(SubjectId:string,userId:string)=>api.post('/student/purchase',{SubjectId,userId}),
+  createOrder:(userId:string)=>api.post('/student/purchase',{userId}),
   getApiKey:()=>api.get('/student/getApiKey'),
-  verifyPayment:(razorpay_order_id:string, razorpay_payment_id:string, razorpay_signature:string, SubjectId:string, UserId:string)=>api.post('/student/verifypayment',{razorpay_order_id, razorpay_payment_id, razorpay_signature, SubjectId, UserId})
+  verifyPayment:(razorpay_order_id:string, razorpay_payment_id:string, razorpay_signature:string, userId:string)=>api.post('/student/verifypayment',{razorpay_order_id, razorpay_payment_id, razorpay_signature, userId})
 };
 
 export const admin = {
@@ -46,10 +47,10 @@ export const admin = {
     api.post('/admin/login',{email,password}),
   assignUSN: (userId: string, USN: Number) =>
     api.patch(`/admin/assign-usn/${userId}`, { USN }),
-  addGrades: (gradeData: any) =>
-    api.post('/admin/grades', gradeData),
   allSubjects:()=>
     api.get('/admin/allSubjects'),
+  addGrades: (studentId, grades) =>
+    api.post('/admin/grades', { studentId, grades }),
   DeleteSubject: (subjectId: string) =>
     api.delete('/admin/subject', { data: { subjectId } }),  
   FindSubject: (subjectId: string) =>

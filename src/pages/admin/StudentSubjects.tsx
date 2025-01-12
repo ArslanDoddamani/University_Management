@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { student } from "../../services/api";
+import { student, admin } from "../../services/api";
 
 interface Subject {
   code: string;
@@ -8,6 +8,7 @@ interface Subject {
   credits: number;
   semester: number;
   department: string;
+  grade?: string; // Optional field for grade
 }
 
 const StudentSubjects = () => {
@@ -15,6 +16,7 @@ const StudentSubjects = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [grades, setGrades] = useState<{ subjectId: string; grade: string }[]>([]);
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -31,7 +33,6 @@ const StudentSubjects = () => {
           subjectIds.map(async (subjectId: string) => {
             try {
               const subjectResponse = await student.getSubjectWithId(subjectId);
-              console.log(subjectResponse.data)
               return subjectResponse.data; // Extract the `data` field
             } catch (err) {
               console.error(`Error fetching subject with ID ${subjectId}:`, err);
@@ -40,8 +41,9 @@ const StudentSubjects = () => {
           })
         );
 
-        // Filter out any null values in case of fetch failures
-        setSubjects(subjectDetails.filter((subject) => subject !== null) as Subject[]);
+        const validSubjects = subjectDetails.filter((subject) => subject !== null) as Subject[];
+        setSubjects(validSubjects);
+        setGrades(validSubjects.map((subject) => ({ subjectId: subject.code, grade: "" })));
       } catch (err) {
         console.error("Error fetching registered subjects:", err);
         setError("Failed to fetch registered subjects. Please try again later.");
@@ -52,6 +54,22 @@ const StudentSubjects = () => {
 
     fetchSubjects();
   }, [studentId]);
+
+  const handleGradeChange = (index: number, grade: string) => {
+    const updatedGrades = [...grades];
+    updatedGrades[index].grade = grade;
+    setGrades(updatedGrades);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await admin.addGrades(studentId, grades);
+      alert("Grades updated successfully");
+    } catch (error) {
+      console.error("Failed to update grades", error);
+      alert("Failed to update grades");
+    }
+  };
 
   return (
     <div className="bg-gray-800 text-white min-h-screen py-6 px-4">
@@ -80,16 +98,27 @@ const StudentSubjects = () => {
               </tr>
             </thead>
             <tbody>
-              {subjects.map((subject) => (
+              {subjects.map((subject, index) => (
                 <tr key={subject.code} className="hover:bg-gray-600">
                   <td className="p-3 border border-gray-600">{subject.name}</td>
                   <td className="p-3 border border-gray-600">{subject.semester}</td>
                   <td className="p-3 border border-gray-600">{subject.credits}</td>
                   <td className="p-3 border border-gray-600">{subject.department}</td>
-                  <td className="p-3 border border-gray-600">--</td>
                   <td className="p-3 border border-gray-600">
-                    <button className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
-                      Add/Change Grade
+                    <input
+                      type="text"
+                      placeholder="Enter Grade"
+                      value={grades[index]?.grade || ""}
+                      onChange={(e) => handleGradeChange(index, e.target.value)}
+                      className="bg-gray-800 text-white p-2 rounded border border-gray-600"
+                    />
+                  </td>
+                  <td className="p-3 border border-gray-600">
+                    <button
+                      onClick={handleSubmit}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                    >
+                      Submit Grade
                     </button>
                   </td>
                 </tr>

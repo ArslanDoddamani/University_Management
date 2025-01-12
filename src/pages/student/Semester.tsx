@@ -67,16 +67,16 @@ const Semester = () => {
   }
 
   // Display message if USN is not assigned
-  if (usn === "-1") {
-    return (
-      <div className="semester-container bg-gray-900 text-white p-6 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-center mb-6">Registered Subjects</h1>
-        <p className="text-center text-xl text-gray-400">
-          Your USN has not been assigned by the admin yet. Please contact the admin for assistance.
-        </p>
-      </div>
-    );
-  }
+  // if (usn === "-1") {
+  //   return (
+  //     <div className="semester-container bg-gray-900 text-white p-6 rounded-lg shadow-lg">
+  //       <h1 className="text-3xl font-bold text-center mb-6">Registered Subjects</h1>
+  //       <p className="text-center text-xl text-gray-400">
+  //         Your USN has not been assigned by the admin yet. Please contact the admin for assistance.
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   // Render semester details if USN is valid
   return (
