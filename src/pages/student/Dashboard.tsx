@@ -4,7 +4,7 @@ import Profile from './Profile';
 import Semester from './Semester';
 import Subjects from './Subjects/index.js';
 import Results from './Results';
-import PaymentHistory from './PaymentHistory';
+import PaymentHistory from './PaymentHistory/PaymentHistory';
 
 const Dashboard = () => {
   const handleLogout = () => {

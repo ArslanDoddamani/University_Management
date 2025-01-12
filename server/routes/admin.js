@@ -88,11 +88,10 @@ router.delete('/subject', async (req, res) => {
   }
 });
 
-
 // Add grades
-router.post('/grades', auth, checkRole(['admin']), async (req, res) => {
+router.patch('/grades', auth, checkRole(['admin']), async (req, res) => {
   try {
-    const { studentId, grades } = req.body;
+    const { studentId, subjectId, grade } = req.body;
 
     // Fetch the student and populate registeredSubjects
     const student = await User.findById(studentId).populate('registeredSubjects.subject');
@@ -101,24 +100,27 @@ router.post('/grades', auth, checkRole(['admin']), async (req, res) => {
       return res.status(404).json({ message: 'Student not found' });
     }
 
-    grades.forEach(({ subjectId, grade }) => {
-      const subjectIndex = student.registeredSubjects.findIndex(
-        (registered) => registered.subject._id.toString() === subjectId
-      );
+    // Find the registered subject by subjectId and update the grade
+    const registeredSubject = student.registeredSubjects.find(
+      (sub) => sub.subject._id.toString() === subjectId
+    );
 
-      if (subjectIndex !== -1) {
-        student.registeredSubjects[subjectIndex].grade = grade;
-      } else {
-        console.warn(`Subject ID ${subjectId} not found for student ${studentId}`);
-      }
-    });
+    if (!registeredSubject) {
+      return res.status(404).json({ message: 'Subject not found for this student' });
+    }
 
+    // Update the grade
+    registeredSubject.grade = grade;
+
+    // Save the updated student
     await student.save();
-    res.status(200).json({ message: 'Grades updated successfully', student });
+
+    res.status(200).json({ message: 'Grade updated successfully', student });
   } catch (error) {
     console.error('Error updating grades:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
 
 export default router;

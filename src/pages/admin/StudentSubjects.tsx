@@ -11,59 +11,62 @@ interface Subject {
   grade?: string; // Optional field for grade
 }
 
+const GRADE_OPTIONS = ["O", "A+", "A", "B+", "B", "C", "P", "F", "W"];
+
 const StudentSubjects = () => {
   const { studentId } = useParams<{ studentId: string }>();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [grades, setGrades] = useState<{ subjectId: string; grade: string }[]>([]);
+  const [grade, setGrade] = useState('');
+
+  const fetchSubjects = async () => {
+    setLoading(true);
+    setError(null);
+  
+    try {
+      // Fetch the registered subject IDs
+      const response = await student.registeredsubjects(studentId);
+      const subjectIds = response.data.map((item) => item.subject);
+      const gradesArray = response.data.map((item) => item.grade); // Directly use this variable
+  
+      // Fetch the full details for each subject ID
+      const subjectDetails = await Promise.all(
+        subjectIds.map(async (subjectId: string, index: number) => {
+          try {
+            const subjectResponse = await student.getSubjectWithId(subjectId);
+            return {
+              ...subjectResponse.data,
+              grade: gradesArray[index], // Use gradesArray here
+            };
+          } catch (err) {
+            console.error(`Error fetching subject with ID ${subjectId}:`, err);
+            return null;
+          }
+        })
+      );
+  
+      const validSubjects = subjectDetails.filter((subject) => subject !== null) as Subject[];
+      setSubjects(validSubjects); // Update state with valid subjects
+    } catch (err) {
+      console.error("Error fetching registered subjects:", err);
+      setError("Failed to fetch registered subjects. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchSubjects = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        // Fetch the registered subject IDs
-        const response = await student.registeredsubjects(studentId);
-        const subjectIds = response.data.subjects;
-
-        // Fetch the full details for each subject ID
-        const subjectDetails = await Promise.all(
-          subjectIds.map(async (subjectId: string) => {
-            try {
-              const subjectResponse = await student.getSubjectWithId(subjectId);
-              return subjectResponse.data; // Extract the `data` field
-            } catch (err) {
-              console.error(`Error fetching subject with ID ${subjectId}:`, err);
-              return null;
-            }
-          })
-        );
-
-        const validSubjects = subjectDetails.filter((subject) => subject !== null) as Subject[];
-        setSubjects(validSubjects);
-        setGrades(validSubjects.map((subject) => ({ subjectId: subject.code, grade: "" })));
-      } catch (err) {
-        console.error("Error fetching registered subjects:", err);
-        setError("Failed to fetch registered subjects. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchSubjects();
   }, [studentId]);
 
-  const handleGradeChange = (index: number, grade: string) => {
-    const updatedGrades = [...grades];
-    updatedGrades[index].grade = grade;
-    setGrades(updatedGrades);
+  const handleGradeChange = (index: number, gradePoint: string) => {
+    setGrade(gradePoint);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (subjectId) => {
     try {
-      await admin.addGrades(studentId, grades);
+      await admin.addGrades(studentId, subjectId, grade);
       alert("Grades updated successfully");
     } catch (error) {
       console.error("Failed to update grades", error);
@@ -94,6 +97,7 @@ const StudentSubjects = () => {
                 <th className="p-3 border border-gray-600">Credits</th>
                 <th className="p-3 border border-gray-600">Department</th>
                 <th className="p-3 border border-gray-600">Current Grade</th>
+                <th className="p-3 border border-gray-600">New Grade</th>
                 <th className="p-3 border border-gray-600">Actions</th>
               </tr>
             </thead>
@@ -104,18 +108,24 @@ const StudentSubjects = () => {
                   <td className="p-3 border border-gray-600">{subject.semester}</td>
                   <td className="p-3 border border-gray-600">{subject.credits}</td>
                   <td className="p-3 border border-gray-600">{subject.department}</td>
+                  <td className="p-3 border border-gray-600">{subject.grade}</td>
                   <td className="p-3 border border-gray-600">
-                    <input
-                      type="text"
-                      placeholder="Enter Grade"
-                      value={grades[index]?.grade || ""}
+                    <select
+                      value={grade[index] || ""}
                       onChange={(e) => handleGradeChange(index, e.target.value)}
                       className="bg-gray-800 text-white p-2 rounded border border-gray-600"
-                    />
+                    >
+                      <option value="">Select Grade</option>
+                      {GRADE_OPTIONS.map((grade) => (
+                        <option key={grade} value={grade}>
+                          {grade}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                   <td className="p-3 border border-gray-600">
                     <button
-                      onClick={handleSubmit}
+                      onClick={() => handleSubmit(subject._id)}
                       className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
                     >
                       Submit Grade

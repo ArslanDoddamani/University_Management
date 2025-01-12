@@ -23,9 +23,9 @@ export const student = {
   addGrades:(studentId: string, grades:{ subjectCode: string; grade: string }[])=>api.put('/student/addgrade',{studentId,grades}),
   getStudents:()=>api.get('/student/allstudents'),
   getSubjects: () => api.get('/student/allsubjects'),
-  getPaymentHistory: (userId) => api.get(`/student/payments/${userId}`),
-  getSubjectWithId: (subjectId) => api.get(`/student/subject/${subjectId}`),
-  registeredsubjects: (userId) => api.get(`/student/registeredsubjects?userId=${userId}`),
+  getPaymentHistory: (userId: string) => api.get(`/student/payments/${userId}`),
+  getSubjectWithId: (subjectId: string) => api.get(`/student/subject/${subjectId}`),
+  registeredsubjects: (userId: string) => api.get(`/student/registeredsubjects?userId=${userId}`),
   deleteStudent:(studentId : string)=>api.delete('/student/deleteStudents',{data: {studentId}}),
 
   getProfile: () => api.get('/student/profile'),
@@ -49,13 +49,12 @@ export const admin = {
     api.patch(`/admin/assign-usn/${userId}`, { USN }),
   allSubjects:()=>
     api.get('/admin/allSubjects'),
-  addGrades: (studentId, grades) =>
-    api.post('/admin/grades', { studentId, grades }),
+  addGrades: (studentId: string, subjectId: string, grade: string) =>
+    api.patch('/admin/grades', { studentId, subjectId, grade }),
   DeleteSubject: (subjectId: string) =>
     api.delete('/admin/subject', { data: { subjectId } }),  
   FindSubject: (subjectId: string) =>
     api.get(`/admin/particularSubject?subjectId=${subjectId}`)
-  
 };
 
 export const Faculty={

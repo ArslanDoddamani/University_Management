@@ -15,7 +15,7 @@ import AddFaculty from './pages/admin/AddFaculty';
 import AllFaculty from './pages/admin/AllFaculty';
 import FacultyDashboard from './pages/FacultyDashboard';
 import StudentSubjects from './pages/admin/StudentSubjects';
-import PaymentHistory from './pages/student/PaymentHistory';
+import PaymentHistory from './pages/student/PaymentHistory/PaymentHistory';
 
 function App() {
   return (

@@ -118,7 +118,7 @@ router.get('/registeredsubjects', async (req, res) => {
     }
 
     const subjects = response.registeredSubjects || [];
-    return res.status(200).json({ subjects });
+    return res.status(200).json( subjects );
   } catch (error) {
     console.error("Error fetching registered subjects:", error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -167,6 +167,7 @@ router.post("/verifypayment", async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userId } = req.body;
 
+    // Verify Razorpay signature
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_API_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -176,30 +177,45 @@ router.post("/verifypayment", async (req, res) => {
       return res.status(400).json({ success: false, msg: "Payment verification failed" });
     }
 
-    // Fetch all subjects to register
+    // Fetch all subjects for registration
     const subjects = await Subject.find({});
     if (!subjects.length) {
       return res.status(404).json({ success: false, msg: "No subjects found for registration" });
     }
 
-    // Add subjects to the user's registered subjects
+    // Fetch the user
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
 
-    const subjectIds = subjects.map((subject) => subject._id);
-    user.registeredSubjects.push(...subjectIds);
+    // Prepare subjects to be added with default grades
+    const registeredSubjectsToAdd = subjects.map((subject) => ({
+      subject: subject._id,
+      grade: "-", // Default grade
+    }));
 
-    // Log payment
+    // Add the registered subjects to the user's registeredSubjects array
+    user.registeredSubjects.push(...registeredSubjectsToAdd);
+
+    // Log the payment
     user.payments.push({
-      amount: 1500,
+      amount: 1500, // Adjust the amount as necessary
       type: "Registration fees",
       status: "completed",
+      razorpay_order_id,
+      razorpay_payment_id,
     });
 
+    // Save the user
     await user.save();
-    return res.status(200).json({ success: true, msg: "Payment verified and subjects registered" });
+
+    // Send response
+    return res.status(200).json({
+      success: true,
+      msg: "Payment verified and subjects registered successfully",
+      transactionId: razorpay_payment_id, // Send transaction ID back to the frontend
+    });
   } catch (error) {
     console.error("Error in payment verification:", error);
     return res.status(500).json({ success: false, msg: "Internal Server Error" });
