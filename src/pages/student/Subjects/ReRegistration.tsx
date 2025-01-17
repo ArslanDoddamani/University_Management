@@ -1,117 +1,207 @@
-import { useEffect, useState } from 'react';
-import { student } from '../../../services/api';
-import { AlertCircle } from 'lucide-react';
+import { jwtDecode } from 'jwt-decode';
+import React, { useEffect, useState } from 'react';
+import { Faculty, student } from '../../../services/api';
 
+// First, let's add an interface for the Subject type
 interface Subject {
-  _id: string;
+  id: number;
   code: string;
   name: string;
   credits: number;
-  semester: number;
   grade: string;
-  attempts: number;
-  fees: {
-    reRegistrationF: number;
-    reRegistrationW: number;
-  };
 }
 
 const ReRegistration = () => {
-  const [failedSubjects, setFailedSubjects] = useState<Subject[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+
+  // State to manage selected faculty for each subject
+  const [selectedFaculty, setSelectedFaculty] = useState<Record<number, string>>({});
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [facultys, setFaculty] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchFailedSubjects = async () => {
+    async function fetchSubjects() {
       try {
-        const response = await student.getProfile();
-        const failed = response.data.grades.filter(
-          (g: any) => g.grade === 'F' || g.grade === 'W'
-        );
-        setFailedSubjects(failed);
-      } catch (error) {
-        setError('Failed to load subjects');
-      } finally {
-        setLoading(false);
-      }
-    };
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("User not logged in");
 
-    fetchFailedSubjects();
+        const decode: any = jwtDecode(token);
+        const userId = decode.userId;
+
+        const res = await student.rrsubjects(userId);
+
+        const subjectDetails = await Promise.all(
+          res.data.data.map(async (id: number, index: number) => {
+            const subjectRes = await student.getSubjectWithId(id);
+            return {
+              ...subjectRes.data,
+              grade: res.data.grades[index]
+            };
+          })
+        );
+
+        // Update the state with the retrieved subject details
+        setSubjects(subjectDetails);
+
+        const facultyDetails = await Faculty.getFacultyByDept(res.data.department);
+        setFaculty(facultyDetails.data.allFaculty)
+      } catch (error) {
+        console.error("Error fetching re-register subjects:", error);
+      }
+    }
+
+    fetchSubjects();
   }, []);
 
-  const handleReRegister = async (subjectId: string) => {
+  // Handle re-registration action
+  const handleReRegister = async (subjectId: any) => {
     try {
-      await student.registerSubjects([subjectId]);
-      setSuccess('Successfully re-registered for the subject');
-      setFailedSubjects(failedSubjects.filter(s => s._id !== subjectId));
-    } catch (error: any) {
-      setError(error.response?.data?.message || 'Re-registration failed');
+      setLoading(true);
+      const user = await student.getProfile();
+      const subject = subjects.find((subject) => subject._id === subjectId);
+  
+      if (!subject) {
+        alert("Subject not found.");
+        return;
+      }
+
+      if (subject.grade === 'W') {
+        if (Object.keys(selectedFaculty).length === 0) {
+          alert("Please select a faculty for this subject.");
+          return;
+        }
+      }
+  
+      // Fetch order details
+      const fees = subject.grade === 'W' ? subject.fees?.reRegistrationW : subject.fees?.reRegistrationF;
+      const orderResponse = await student.getOrder(fees);
+      
+      const { order } = orderResponse.data;
+      const apiKeyResponse = await student.getApiKey();
+      const apiKey: string = apiKeyResponse.data;
+  
+      // Check if Razorpay is available
+      if (!(window as any).Razorpay) {
+        alert("Razorpay SDK not loaded. Please try again later.");
+        return;
+      }
+  
+      // Razorpay options
+      const options = {
+        key: apiKey,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.id,
+        prefill: {
+          name: "Your Name",
+          email: "email@example.com",
+        },
+        handler: async (response: any) => {
+          const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = response;
+  
+          try {
+            const verifyResponse = await student.rrSubjectPayment({
+              razorpay_order_id,
+              razorpay_payment_id,
+              razorpay_signature,
+              userId: user.data._id,
+              semester: user.data.currentSemester,
+              price: fees,
+              subjectId: subject._id,
+              type: subject.grade === 'W' ? 'Reregister - W' : 'Reregister - F',
+              facultyId: selectedFaculty.facultyId, // Ensure specific faculty is passed
+            });
+  
+            if (verifyResponse.data.success) {
+              alert("Payment successful! Subjects registered.");
+            } else {
+              alert("Payment verification failed. Please try again.");
+            }
+          } catch (error) {
+            console.error("Error verifying payment:", error);
+            alert("Error verifying payment.");
+          }
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+  
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error("Error during payment:", error);
+      alert("An error occurred during the payment process. Please try again.");
+    } finally {
+      setSelectedFaculty({});
+      setLoading(false);
     }
   };
+  
 
-  if (loading) return <div>Loading...</div>;
+  // Handle faculty selection change
+  const handleFacultyChange = (subjectId: any, facultyId: any) => {
+    setSelectedFaculty({ subjectId, facultyId });
+  };
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <h2 className="text-xl font-semibold mb-4">Re-Registration</h2>
-
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md flex items-center">
-          <AlertCircle className="h-5 w-5 mr-2" />
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="mb-4 p-4 bg-green-50 text-green-700 rounded-md">
-          {success}
-        </div>
-      )}
-
-      {failedSubjects.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">
-          No subjects available for re-registration
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {failedSubjects.map((subject) => (
-            <div key={subject._id} className="border rounded-md p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className="font-medium">{subject.name}</h3>
-                  <p className="text-sm text-gray-500">
-                    Code: {subject.code} | Credits: {subject.credits}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium text-red-600">
-                    Grade: {subject.grade}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    Attempts: {subject.attempts}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-4">
-                <button
-                  onClick={() => handleReRegister(subject._id)}
-                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700"
-                >
-                  Re-Register (₹
-                  {subject.grade === 'F' 
-                    ? subject.fees.reRegistrationF * subject.attempts
-                    : subject.fees.reRegistrationW
-                  })
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="min-h-screen bg-gray-900 text-gray-200 p-6">
+      <h1 className="text-3xl font-bold text-center mb-6">Reregister Subjects</h1>
+      <div className="overflow-x-auto">
+        <table className="table-auto w-full border-collapse border border-gray-700 text-sm md:text-base">
+          <thead>
+            <tr className="bg-gray-800 text-gray-200">
+              <th className="border border-gray-700 px-4 py-2">Sl No</th>
+              <th className="border border-gray-700 px-4 py-2">Subject Code</th>
+              <th className="border border-gray-700 px-4 py-2">Subject Name</th>
+              <th className="border border-gray-700 px-4 py-2">Credits</th>
+              <th className="border border-gray-700 px-4 py-2">Grade</th>
+              <th className="border border-gray-700 px-4 py-2">Faculty</th>
+              <th className="border border-gray-700 px-4 py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {subjects.map((subject, index) => (
+              <tr key={`${subject.id}-${index}`} className="text-center hover:bg-gray-700 transition duration-200">
+                <td className="border border-gray-700 px-4 py-2">{index + 1}</td>
+                <td className="border border-gray-700 px-4 py-2">{subject.code}</td>
+                <td className="border border-gray-700 px-4 py-2">{subject.name}</td>
+                <td className="border border-gray-700 px-4 py-2">{subject.credits}</td>
+                <td className="border border-gray-700 px-4 py-2">{subject.grade}</td>
+                <td className="border border-gray-700 px-6 py-2">
+                  {subject.grade !== 'F' ? (
+                    <select
+                      onChange={(e) => handleFacultyChange(subject._id, e.target.value)}
+                      className="bg-gray-800 text-gray-200 border border-gray-600 w-3/4 py-1 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Faculty</option>
+                      {facultys.map((faculty) => (
+                        <option key={faculty._id} value={faculty._id}>
+                          {faculty.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span className="text-red-500">Not Applicable</span>
+                  )}
+                </td>
+                <td className="border border-gray-700 px-4 py-2">
+                  <button
+                    disabled={loading}
+                    onClick={() => handleReRegister(subject._id)}
+                    className={`${loading ? "bg-gray-600 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"} text-white font-semibold py-1 px-4 rounded-lg transition-all duration-300 focus:outline-none`}
+                  >
+                    Re-register
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
 export default ReRegistration;
+

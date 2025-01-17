@@ -16,6 +16,7 @@ import AllFaculty from './pages/admin/AllFaculty';
 import FacultyDashboard from './pages/FacultyDashboard';
 import StudentSubjects from './pages/admin/StudentSubjects';
 import PaymentHistory from './pages/student/PaymentHistory/PaymentHistory';
+import Result from './pages/admin/Result';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/admin/allsubjects" element={<Allsubjects/>}></Route>
           <Route path="/admin/allFaculty" element={<AllFaculty/>}></Route>
           <Route path="/admin/addFaculty" element={<AddFaculty/>}></Route>
+          <Route path="/admin/result" element={<Result/>}></Route>
           <Route path="/admin/students/:studentId/subjects" element={<StudentSubjects />} />
           
           

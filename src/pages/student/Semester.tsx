@@ -5,7 +5,6 @@ import { jwtDecode } from "jwt-decode";
 
 const Semester = () => {
   const [subjects, setSubjects] = useState([]);
-  const [grades, setGrades] = useState([]);
   const [sortOption, setSortOption] = useState("");
   const [usn, setUsn] = useState<string | null>("");
 
@@ -28,6 +27,8 @@ const Semester = () => {
       const res = await student.registeredsubjects(userId); // API returns {"subjects": [...]}
       const subjectIds = res.data.map((item: any) => item.subject);
       const grades = res.data.map((item: any) => item.grade);
+      const flags = res.data.map((item: any) => item.flag)
+
   
       if (subjectIds.length === 0) {
         setSubjects([]); // No subjects registered
@@ -41,6 +42,7 @@ const Semester = () => {
           return {
             ...subjectDetails.data, // Include subject details
             grade: grades[index],  // Add corresponding grade
+            flag: flags[index]
           };
         })
       );
@@ -133,12 +135,12 @@ const Semester = () => {
             <tbody>
               {subjects.map((subject) => (
                 <tr key={subject._id} className="border-b border-gray-700">
-                  <td className="py-2 px-4">{subject.subject.code}</td>
-                  <td className="py-2 px-4">{subject.subject.name}</td>
-                  <td className="py-2 px-4">{subject.subject.credits}</td>
-                  <td className="py-2 px-4">{subject.subject.department}</td>
-                  <td className="py-2 px-4">{subject.subject.semester}</td>
-                  <td className="py-2 px-4">{subject.grade}</td>
+                  <td className="py-2 px-4">{subject?.subject?.code}</td>
+                  <td className="py-2 px-4">{subject?.subject?.name}</td>
+                  <td className="py-2 px-4">{subject?.subject?.credits}</td>
+                  <td className="py-2 px-4">{subject?.subject?.department}</td>
+                  <td className="py-2 px-4">{subject?.subject?.semester}</td>
+                  <td className="py-2 px-4">{subject.flag ? subject.grade : '-'}</td>
                 </tr>
               ))}
             </tbody>

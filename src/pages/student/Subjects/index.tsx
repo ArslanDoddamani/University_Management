@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { student } from "../../../services/api";
 import { jwtDecode } from "jwt-decode";
+import { Link } from "react-router-dom";
 
 interface Subject {
   _id: string;
@@ -19,6 +20,7 @@ const Subjects: React.FC = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(false);
   const [usn, setUsn] = useState<string | null>("");
+  const [semester, setSemester] = useState(0);
 
   // Check `usn` from localStorage
   useEffect(() => {
@@ -29,13 +31,31 @@ const Subjects: React.FC = () => {
   useEffect(() => {
     async function fetchSubjects() {
       try {
-        const response = await student.getSubjects();
-        setSubjects(response.data.subjects);
+        // Fetch the profile
+        const res = await student.getProfile();
+        setSemester(res.data.currentSemester);
+
+        // Ensure currentSemester is valid
+        if (!res.data.currentSemester) {
+          console.error("Invalid currentSemester:", res.data.currentSemester);
+          return;
+        }
+
+        // Fetch subjects by semester
+        const response = await student.getSubjectsBySemester(res.data.currentSemester);
+
+        // Check if subjects exist
+        if (Array.isArray(response.data.subjects) && response.data.subjects.length > 0) {
+          setSubjects(response.data.subjects);
+        } else {
+          console.warn("No subjects found for the current semester:", res.data.currentSemester);
+          setSubjects([]); // Set to empty array if no subjects
+        }
       } catch (error) {
         console.error("Error fetching subjects:", error);
       }
     }
-
+    // Fetch subjects only if `usn` is valid
     if (usn && usn !== "-1") {
       fetchSubjects();
     }
@@ -54,7 +74,7 @@ const Subjects: React.FC = () => {
     try {
       setLoading(true);
 
-      const orderResponse = await student.createOrder(userId);
+      const orderResponse = await student.createOrder(semester, 1500);
       const { order } = orderResponse.data;
 
       const apiKeyResponse = await student.getApiKey();
@@ -77,7 +97,8 @@ const Subjects: React.FC = () => {
               razorpay_order_id,
               razorpay_payment_id,
               razorpay_signature,
-              userId
+              userId,
+              semester
             );
 
             if (verifyResponse.data.success) {
@@ -120,8 +141,20 @@ const Subjects: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 p-6">
+      <ul className="mb-10 ml-36 ">
+        <li className="mb-4 list-disc">
+          <Link
+            to="/student/subjects/reregister"
+            className="text-xl font-semibold text-blue-500 hover:text-blue-600 transition-all duration-300"
+          >
+            Reregister
+          </Link>
+        </li>
+      </ul>
+
       <div className="container mx-auto">
         <h1 className="text-4xl font-bold text-center mb-8">Available Subjects</h1>
+
         {subjects.length === 0 ? (
           <p className="text-center text-lg">Loading subjects...</p>
         ) : (
@@ -133,6 +166,7 @@ const Subjects: React.FC = () => {
                   <th className="border border-gray-700 px-4 py-2">Subject Name</th>
                   <th className="border border-gray-700 px-4 py-2">Credits</th>
                   <th className="border border-gray-700 px-4 py-2">Department</th>
+                  <th className="border border-gray-700 px-4 py-2">Semester</th>
                 </tr>
               </thead>
               <tbody>
@@ -142,17 +176,18 @@ const Subjects: React.FC = () => {
                     <td className="border border-gray-700 px-4 py-2">{subject.name}</td>
                     <td className="border border-gray-700 px-4 py-2">{subject.credits}</td>
                     <td className="border border-gray-700 px-4 py-2">{subject.department}</td>
+                    <td className="border border-gray-700 px-4 py-2">{subject.semester}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+
             <div className="flex justify-center mt-8">
               <button
                 onClick={initiatePayment}
                 disabled={loading}
-                className={`${
-                  loading ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-                } px-6 py-3 text-lg rounded-lg font-semibold text-white`}
+                className={`${loading ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                  } px-6 py-3 text-lg rounded-lg font-semibold text-white`}
               >
                 {loading ? "Processing..." : "Register All Subjects"}
               </button>
@@ -161,6 +196,7 @@ const Subjects: React.FC = () => {
         )}
       </div>
     </div>
+
   );
 };
 

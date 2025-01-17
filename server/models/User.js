@@ -6,11 +6,18 @@ const paymentSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: [
-        "Registration fees",
+        "Semester 1 Registration fees",
+        "Semester 2 Registration fees",
+        "Semester 3 Registration fees",
+        "Semester 4 Registration fees",
+        "Semester 5 Registration fees",
+        "Semester 6 Registration fees",
+        "Semester 7 Registration fees",
+        "Semester 8 Registration fees",
         "ExamFee",
         "ChallengeValuation",
-        "F",
-        "W",
+        "Reregister - F",
+        "Reregister - W",
       ],
       required: true,
     },
@@ -41,9 +48,32 @@ const registeredSubjectSchema = new mongoose.Schema(
       type: String,
       default: "-",
     },
+    flag: {
+      type: Boolean,
+      default: false,
+    },
+    semester: {
+      type: Number,
+      required: true,
+    },
+    registerType: {
+      type: String,
+      enum: [
+        "Regular",
+        "Reregister - F",
+        "Reregister - W",
+      ],
+      required: true,
+    },
+    time: {
+      type: String, // Change the type from Date to String
+      default: () => new Date().toISOString().slice(0, 16), // Default to ISO 8601 format with date and time (to the minute)
+    },
   },
   { _id: false } // Disable automatic _id for subdocuments
 );
+
+
 
 const userSchema = new mongoose.Schema(
   {

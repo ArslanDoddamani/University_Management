@@ -60,6 +60,57 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.get('/profile/:facultyId', async(req,res) => {
+  const { facultyId } = req.params;
+
+  try {
+    const faculty = await Faculty.findById(facultyId);
+    if (!faculty) {
+      return res.status(404).json({ message: 'Faculty not found' });
+    }
+    res.json(faculty);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.patch('/updateStatus', async (req, res) => {
+  const { facultyId, usn, subCode, status } = req.body;
+
+  if (!facultyId || !usn || !subCode || !status) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    // Find the faculty by ID
+    const faculty = await Faculty.findById(facultyId);
+    if (!faculty) {
+      return res.status(404).json({ message: 'Faculty not found' });
+    }
+
+    // Locate the student with the matching USN and subject code in the students array
+    const student = faculty.students.find(
+      (student) =>
+        student.usn === usn &&
+        student.subCode === subCode
+    );
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student or subject not found' });
+    }
+
+    // Update the status field
+    student.status = status;
+
+    // Save the changes to the database
+    await faculty.save();
+
+    res.status(200).json({ success: true ,message: 'Status updated successfully', updatedStudent: student });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 router.get('/allFaculty', async(req, res) =>{
   try {
     const allFaculty = await Faculty.find({});
@@ -67,7 +118,18 @@ router.get('/allFaculty', async(req, res) =>{
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
-})
+});
+
+router.get('/allFaculty/:dept', async(req, res) =>{
+  try {
+    const { dept } = req.params;
+    console.log(dept);
+    const allFaculty = await Faculty.find({department: dept});
+    return res.status(200).json({allFaculty})
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
 
 router.delete('/deleteFaculty', async(req, res) =>{
   try {
@@ -78,7 +140,7 @@ router.delete('/deleteFaculty', async(req, res) =>{
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
-})
+});
 
 // Get re-registered students
 router.get('/re-registered-students', auth, checkRole(['faculty']), async (req, res) => {

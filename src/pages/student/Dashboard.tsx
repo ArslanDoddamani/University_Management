@@ -2,9 +2,10 @@ import { Routes, Route, Link } from 'react-router-dom';
 import { Menu, User, BookOpen, GraduationCap, LogOut } from 'lucide-react';
 import Profile from './Profile';
 import Semester from './Semester';
-import Subjects from './Subjects/index.js';
-import Results from './Results';
+import Subjects from './Subjects/index';
+import Results from './Results/Results';
 import PaymentHistory from './PaymentHistory/PaymentHistory';
+import ReRegistration from './Subjects/ReRegistration';
 
 const Dashboard = () => {
   const handleLogout = () => {
@@ -80,6 +81,7 @@ const Dashboard = () => {
           <Route path="" element={<Profile />} />
           <Route path="semester" element={<Semester />} />
           <Route path="subjects" element={<Subjects />} />
+          <Route path="subjects/reregister" element={<ReRegistration />} />
           <Route path="results" element={<Results />} />
           <Route path="payments" element={<PaymentHistory />} />
         </Routes>

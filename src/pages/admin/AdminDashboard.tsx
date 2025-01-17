@@ -39,6 +39,24 @@ const AdminDashboard = () => {
                 >
                     <h2 className="text-2xl font-semibold">All Faculty</h2>
                 </button>
+                <button
+                    onClick={() => navigate('/admin/result')}
+                    className="p-8 bg-gradient-to-r from-teal-500 to-teal-700 text-white rounded-lg shadow-2xl hover:from-teal-600 hover:to-teal-800 transform hover:scale-105 transition-all duration-300"
+                >
+                    <h2 className="text-2xl font-semibold">Result</h2>
+                </button>
+                <button
+                    onClick={() => navigate('/admin/analytics')}
+                    className="p-8 bg-gradient-to-r from-indigo-500 to-indigo-700 text-white rounded-lg shadow-2xl hover:from-indigo-600 hover:to-indigo-800 transform hover:scale-105 transition-all duration-300"
+                >
+                    <h2 className="text-2xl font-semibold">Analytics</h2>
+                </button>
+                <button
+                    onClick={() => navigate('/admin/settings')}
+                    className="p-8 bg-gradient-to-r from-pink-500 to-pink-700 text-white rounded-lg shadow-2xl hover:from-pink-600 hover:to-pink-800 transform hover:scale-105 transition-all duration-300"
+                >
+                    <h2 className="text-2xl font-semibold">Settings</h2>
+                </button>
             </div>
         </div>
     );

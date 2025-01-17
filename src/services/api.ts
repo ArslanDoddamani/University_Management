@@ -23,10 +23,15 @@ export const student = {
   addGrades:(studentId: string, grades:{ subjectCode: string; grade: string }[])=>api.put('/student/addgrade',{studentId,grades}),
   getStudents:()=>api.get('/student/allstudents'),
   getSubjects: () => api.get('/student/allsubjects'),
+  getSubjectsBySemester: (semester: any) => api.get(`/student/subjects/${semester}`),
   getPaymentHistory: (userId: string) => api.get(`/student/payments/${userId}`),
   getSubjectWithId: (subjectId: string) => api.get(`/student/subject/${subjectId}`),
   registeredsubjects: (userId: string) => api.get(`/student/registeredsubjects?userId=${userId}`),
   deleteStudent:(studentId : string)=>api.delete('/student/deleteStudents',{data: {studentId}}),
+  challengingValuation: (data: object) => api.post('/student/challenge-valuation',data),
+  rrsubjects: (userId: string) => api.get(`/student/subject/rrSubject/${userId}`),
+  getOrder: (price: number) => api.post(`/student/order`,{price}),
+  rrSubjectPayment: (data:any) => api.post('/student/rrSubjectpayment', data),
 
   getProfile: () => api.get('/student/profile'),
   registerSubjects: (subjectIds: string[]) => 
@@ -35,9 +40,9 @@ export const student = {
     api.post('/student/challenge-valuation', { subjectId }),
   getPayments: () => api.get('/student/payments'),
   getResults: () => api.get('/student/results'),
-  createOrder:(userId:string)=>api.post('/student/purchase',{userId}),
+  createOrder:(semester:number, price:number)=>api.post('/student/purchase',{semester, price}),
   getApiKey:()=>api.get('/student/getApiKey'),
-  verifyPayment:(razorpay_order_id:string, razorpay_payment_id:string, razorpay_signature:string, userId:string)=>api.post('/student/verifypayment',{razorpay_order_id, razorpay_payment_id, razorpay_signature, userId})
+  verifyPayment:(razorpay_order_id:string, razorpay_payment_id:string, razorpay_signature:string, userId:string, semester:number)=>api.post('/student/verifypayment',{razorpay_order_id, razorpay_payment_id, razorpay_signature, userId,semester})
 };
 
 export const admin = {
@@ -54,7 +59,10 @@ export const admin = {
   DeleteSubject: (subjectId: string) =>
     api.delete('/admin/subject', { data: { subjectId } }),  
   FindSubject: (subjectId: string) =>
-    api.get(`/admin/particularSubject?subjectId=${subjectId}`)
+    api.get(`/admin/particularSubject?subjectId=${subjectId}`),
+  LaunchResult: (data:any) => api.patch('/admin/launch-result', data),
+  allchallengevaluations: ()=> api.get('/admin/challengevaluations'),
+  updateChallengeEvaluationStatus: (data: any)=> api.patch('/admin/challengevaluations/status',data),
 };
 
 export const Faculty={
@@ -62,8 +70,10 @@ export const Faculty={
     api.post('/faculty/register',{name,email,password,department}),
   login:(email:string,password:string)=>
     api.post('/Faculty/login',{email,password}),
-
+  getProfile: (facultyId: string)=>api.get(`/Faculty/profile/${facultyId}`),
+  updateStatus: (data: any)=>api.patch('/Faculty/updateStatus', data),
   getFaculty:()=>api.get('/Faculty/allFaculty'),
+  getFacultyByDept:(dept: String)=>api.get(`/Faculty/allFaculty/${dept}`),
   deleteFaculty:(facultyId : string)=>api.delete('/Faculty/deleteFaculty',{data: {facultyId}}),
 
 }

@@ -8,13 +8,12 @@ export default function AddFaculty() {
   const [department, setDepartment] = useState("");
 
   const departments = [
-    "Computer Science",
-    "Information Technology",
+    "Computer Science and Engineering",
+    "Electrical Engineering",
     "Mechanical Engineering",
     "Civil Engineering",
-    "Electrical Engineering",
-    "Electronics and Communication",
-  ]; // Example department options
+    "Biotechnology",
+  ]; // Updated department options
 
   async function AddnewFaculty(e: any) {
     e.preventDefault();
